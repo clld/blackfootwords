@@ -1,0 +1,2 @@
+graft blackfootwords
+global-exclude *.py[co]
