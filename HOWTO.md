@@ -21,3 +21,6 @@
 
 You should now be able to visit the app with your browser at http://localhost:6543/
 
+## Going further
+
+The clld docs at https://clld.readthedocs.io/en/latest/ contain some information about how to customize clld apps.
