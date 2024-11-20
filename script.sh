@@ -35,6 +35,21 @@ pip install waitress pycldf
 # Install additional packages
 pip install -r requirements.txt
 
+# Define the replacement shebang
+var="#!/usr/bin/env python3"
+
+# Define the target directory (relative path)
+TARGET_DIR="./.venv"
+
+# Check if the target directory exists
+if [ -d "$TARGET_DIR" ]; then
+    # Replace the first line in all files within the .venv directory
+    find "$TARGET_DIR" -type f -exec sed -i "1s|.*|$var|" {} +
+    echo "All files in $TARGET_DIR updated with the new shebang line."
+else
+    echo "Directory $TARGET_DIR does not exist. Please check the path."
+fi
+
 # Initialize the database
 echo "Initializing the database with CLDF metadata..."
 clld initdb development.ini --cldf ~/blackfootwords/cldf/Wordlist-metadata.json
