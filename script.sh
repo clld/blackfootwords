@@ -40,7 +40,7 @@ pip install -r requirements.txt
 var="#!/usr/bin/env python3"
 
 # Define the target directory (relative path)
-TARGET_DIR="./.venv"
+TARGET_DIR="./.venv/bin"
 
 # Check if the target directory exists
 if [ -d "$TARGET_DIR" ]; then
