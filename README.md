@@ -9,7 +9,8 @@ how to start website (after having downloaded everything)
 
 ## Using the scripting file
 
-Run
+Run 
+
 `chmod +x script.sh`
 
 Then run
