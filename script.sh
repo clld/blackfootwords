@@ -19,6 +19,7 @@ echo "Setting up virtual environment..."
 if ! python3 -m virtualenv .venv; then
     echo "Falling back to python3-venv..."
     python3 -m venv .venv
+fi
 
 # Activate the virtual environment
 echo "Activating the virtual evnrionment..."
