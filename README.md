@@ -9,6 +9,7 @@ how to start website (after having downloaded everything)
 
 ## Using the scripting file
 **Prerequisite**: Make sure that the cldf-datasets/blackfootwords-dataset repository is cloned *inside* this directory for this to work. 
+
 Run 
 
 `chmod +x script.sh`
