@@ -3,15 +3,24 @@
 # Ensure the script stops if any command fails
 set -e
 
-# Install pip (if not already installed)
+# Detect the OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Detected macOS."
+    INSTALL_CMD="brew install"
+else
+    echo "Detected Linux."
+    INSTALL_CMD="sudo apt install -y"
+fi
+
+# Install pip
 echo "Installing pip if not already installed..."
-sudo apt install -y python3-pip
+$INSTALL_CMD python3-pip
 
 # Install virtualenv or python3-venv
 echo "Installing virtual environment tools..."
 if ! pip install virtualenv; then
     echo "Falling back to python3-venv..."
-    sudo apt install -y python3-venv
+    $INSTALL_CMD python3-venv
 fi
 
 # Set up virtual environment
@@ -22,7 +31,7 @@ if ! python3 -m virtualenv .venv; then
 fi
 
 # Activate the virtual environment
-echo "Activating the virtual evnrionment..."
+echo "Activating the virtual environment..."
 source .venv/bin/activate
 
 # Install the current project in editable mode
@@ -31,10 +40,7 @@ pip install -e .
 
 # Install additional dependencies
 echo "Installing additional dependencies..."
-pip install waitress pycldf
-
-# Install additional packages
-pip install -r requirements.txt
+pip install waitress pycldf -r requirements.txt
 
 # Define the replacement shebang
 var="#!/usr/bin/env python3"
@@ -44,8 +50,11 @@ TARGET_DIR="./.venv/bin"
 
 # Check if the target directory exists
 if [ -d "$TARGET_DIR" ]; then
-    # Replace the first line in all files within the .venv directory
-    find "$TARGET_DIR" -type f -exec sed -i "1s|.*|$var|" {} +
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        find "$TARGET_DIR" -type f -exec sed -i '' "1s|.*|$var|" {} +
+    else
+        find "$TARGET_DIR" -type f -exec sed -i "1s|.*|$var|" {} +
+    fi
     echo "All files in $TARGET_DIR updated with the new shebang line."
 else
     echo "Directory $TARGET_DIR does not exist. Please check the path."

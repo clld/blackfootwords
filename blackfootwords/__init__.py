@@ -17,6 +17,8 @@ def main(global_config, **settings):
     """
     config = Configurator(settings=settings)
     config.include('clld.web.app')
+    config.add_route('words', '/words')
+    config.scan()
 
 
     return config.make_wsgi_app()
