@@ -62,7 +62,7 @@ fi
 
 # Initialize the database
 echo "Initializing the database with CLDF metadata..."
-clld initdb development.ini --cldf ~/blackfootwords/cldf/Wordlist-metadata.json
+clld initdb development.ini --cldf ~/blackfootwords-dataset/cldf/Wordlist-metadata.json
 
 # Start the server
 echo "Starting the server with pserve..."
