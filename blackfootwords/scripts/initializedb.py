@@ -82,11 +82,10 @@ def main(args):
             sid, pages = Sources.parse(ref)
             refs[(vsid, sid)].append(pages)
         data.add(
-            models.Lemma,
+            common.Value,
             form['id'],
             id=form['id'],
             name=form['form'],
-            categories='/'.join(form['LabLemmaCategory']),
             valueset=vs,
         )
 
