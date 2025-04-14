@@ -1,0 +1,46 @@
+{
+    "url": "borrowings.csv",
+    "dc:conformsTo": "http://cldf.clld.org/v1.0/terms.rdf#BorrowingTable",
+    "tableSchema": {
+        "columns": [
+            {
+                "name": "ID",
+                "required": true,
+                "propertyUrl": "http://cldf.clld.org/v1.0/terms.rdf#id",
+                "datatype": {
+                    "base": "string",
+                    "format": "[a-zA-Z0-9_\\-]+"
+                }
+            },
+            {
+                "name": "Target_Form_ID",
+                "required": true,
+                "propertyUrl": "http://cldf.clld.org/v1.0/terms.rdf#targetFormReference",
+                "dc:description": "References the loanword, i.e. the form as borrowed into the target language",
+                "datatype": "string"
+            },
+            {
+                "name": "Source_Form_ID",
+                "required": false,
+                "propertyUrl": "http://cldf.clld.org/v1.0/terms.rdf#sourceFormReference",
+                "dc:description": "References the source word of a borrowing",
+                "datatype": "string"
+            },
+            {
+                "name": "Comment",
+                "required": false,
+                "propertyUrl": "http://cldf.clld.org/v1.0/terms.rdf#comment",
+                "datatype": "string"
+            },
+            {
+                "name": "Source",
+                "required": false,
+                "propertyUrl": "http://cldf.clld.org/v1.0/terms.rdf#source",
+                "datatype": {
+                    "base": "string"
+                },
+                "separator": ";"
+            }
+        ]
+    }
+}

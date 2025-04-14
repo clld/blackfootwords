@@ -1,0 +1,600 @@
+Metadata-Version: 2.1
+Name: zope.sqlalchemy
+Version: 3.1
+Summary: Minimal Zope/SQLAlchemy transaction integration
+Home-page: https://github.com/zopefoundation/zope.sqlalchemy
+Author: Laurence Rowe
+Author-email: laurence@lrowe.co.uk
+License: ZPL 2.1
+Keywords: zope zope3 sqlalchemy
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Pyramid
+Classifier: Framework :: Zope :: 3
+Classifier: Framework :: Zope :: 5
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Zope Public License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Database
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7
+License-File: LICENSE.txt
+Requires-Dist: packaging
+Requires-Dist: setuptools
+Requires-Dist: SQLAlchemy !=1.4.0,!=1.4.1,!=1.4.2,!=1.4.3,!=1.4.4,!=1.4.5,!=1.4.6,>=1.1
+Requires-Dist: transaction >=1.6.0
+Requires-Dist: zope.interface >=3.6.0
+Provides-Extra: test
+Requires-Dist: zope.testing ; extra == 'test'
+
+***************
+zope.sqlalchemy
+***************
+
+.. contents::
+   :local:
+
+Introduction
+============
+
+The aim of this package is to unify the plethora of existing packages
+integrating SQLAlchemy with Zope's transaction management. As such it seeks
+only to provide a data manager and makes no attempt to define a `zopeish` way
+to configure engines.
+
+For WSGI applications, Zope style automatic transaction management is
+available with `repoze.tm2`_ (used by `Turbogears 2`_ and other systems).
+
+This package is also used by `pyramid_tm`_ (an add-on of the `Pyramid`_) web
+framework.
+
+You need to understand `SQLAlchemy`_ and the `Zope transaction manager`_ for
+this package and this README to make any sense.
+
+.. _repoze.tm2: https://repozetm2.readthedocs.io/en/latest/
+
+.. _pyramid_tm: https://docs.pylonsproject.org/projects/pyramid_tm/en/latest/
+
+.. _Pyramid: https://pylonsproject.org/
+
+.. _Turbogears 2: https://turbogears.org/
+
+.. _SQLAlchemy: https://sqlalchemy.org/docs/
+
+.. _Zope transaction manager: https://www.zodb.org/en/latest/#transactions
+
+Running the tests
+=================
+
+This package is distributed as a buildout. Using your desired python run:
+
+$ python bootstrap.py
+$ ./bin/buildout
+
+This will download the dependent packages and setup the test script, which may
+be run with:
+
+$ ./bin/test
+
+or with the standard setuptools test command:
+
+$ ./bin/py setup.py test
+
+To enable testing with your own database set the TEST_DSN environment variable
+to your sqlalchemy database dsn. Two-phase commit behaviour may be tested by
+setting the TEST_TWOPHASE variable to a non empty string. e.g:
+
+$ TEST_DSN=postgres://test:test@localhost/test TEST_TWOPHASE=True bin/test
+
+Usage in short
+==============
+
+The integration between Zope transactions and the SQLAlchemy event system is
+done using the ``register()`` function on the session factory class.
+
+.. code-block:: python
+
+    from zope.sqlalchemy import register
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker, scoped_session
+
+    engine = sqlalchemy.create_engine("postgresql://scott:tiger@localhost/test")
+
+    DBSession = scoped_session(sessionmaker(bind=engine))
+    register(DBSession)
+
+Instantiated sessions commits and rollbacks will now be integrated with Zope
+transactions.
+
+.. code-block:: python
+
+    import transaction
+    from sqlalchemy.sql import text
+
+    session = DBSession()
+
+    result = session.execute(text("DELETE FROM objects WHERE id=:id"), {"id": 2})
+    row = result.fetchone()
+
+    transaction.commit()
+
+
+Full Example
+============
+
+This example is lifted directly from the SQLAlchemy declarative documentation.
+First the necessary imports.
+
+    >>> from sqlalchemy import *
+    >>> from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker, relationship
+    >>> from sqlalchemy.sql import text
+    >>> from zope.sqlalchemy import register
+    >>> import transaction
+
+Now to define the mapper classes.
+
+    >>> Base = declarative_base()
+    >>> class User(Base):
+    ...     __tablename__ = 'test_users'
+    ...     id = Column('id', Integer, primary_key=True)
+    ...     name = Column('name', String(50))
+    ...     addresses = relationship("Address", backref="user")
+    >>> class Address(Base):
+    ...     __tablename__ = 'test_addresses'
+    ...     id = Column('id', Integer, primary_key=True)
+    ...     email = Column('email', String(50))
+    ...     user_id = Column('user_id', Integer, ForeignKey('test_users.id'))
+
+Create an engine and setup the tables. Note that for this example to work a
+recent version of sqlite/pysqlite is required. 3.4.0 seems to be sufficient.
+
+    >>> engine = create_engine(TEST_DSN)
+    >>> Base.metadata.create_all(engine)
+
+Now to create the session itself. As zope is a threaded web server we must use
+scoped sessions. Zope and SQLAlchemy sessions are tied together by using the
+register
+
+    >>> Session = scoped_session(sessionmaker(bind=engine,
+    ... twophase=TEST_TWOPHASE))
+
+Call the scoped session factory to retrieve a session. You may call this as
+many times as you like within a transaction and you will always retrieve the
+same session. At present there are no users in the database.
+
+    >>> session = Session()
+    >>> register(session)
+    <zope.sqlalchemy.datamanager.ZopeTransactionEvents object at ...>
+    >>> session.query(User).all()
+    []
+
+We can now create a new user and commit the changes using Zope's transaction
+machinery, just as Zope's publisher would.
+
+    >>> session.add(User(id=1, name='bob'))
+    >>> transaction.commit()
+
+Engine level connections are outside the scope of the transaction integration.
+
+    >>> engine.connect().execute(text('SELECT * FROM test_users')).fetchall()
+    [(1, ...'bob')]
+
+A new transaction requires a new session. Let's add an address.
+
+    >>> session = Session()
+    >>> bob = session.query(User).all()[0]
+    >>> str(bob.name)
+    'bob'
+    >>> bob.addresses
+    []
+    >>> bob.addresses.append(Address(id=1, email='bob@bob.bob'))
+    >>> transaction.commit()
+    >>> session = Session()
+    >>> bob = session.query(User).all()[0]
+    >>> bob.addresses
+    [<Address object at ...>]
+    >>> str(bob.addresses[0].email)
+    'bob@bob.bob'
+    >>> bob.addresses[0].email = 'wrong@wrong'
+
+To rollback a transaction, use transaction.abort().
+
+    >>> transaction.abort()
+    >>> session = Session()
+    >>> bob = session.query(User).all()[0]
+    >>> str(bob.addresses[0].email)
+    'bob@bob.bob'
+    >>> transaction.abort()
+
+By default, zope.sqlalchemy puts sessions in an 'active' state when they are
+first used. ORM write operations automatically move the session into a
+'changed' state. This avoids unnecessary database commits. Sometimes it
+is necessary to interact with the database directly through SQL. It is not
+possible to guess whether such an operation is a read or a write. Therefore we
+must manually mark the session as changed when manual SQL statements write
+to the DB.
+
+    >>> session = Session()
+    >>> conn = session.connection()
+    >>> users = Base.metadata.tables['test_users']
+    >>> conn.execute(users.update().where(users.c.name=='bob'), {'name': 'ben'})
+    <sqlalchemy.engine... object at ...>
+    >>> from zope.sqlalchemy import mark_changed
+    >>> mark_changed(session)
+    >>> transaction.commit()
+    >>> session = Session()
+    >>> str(session.query(User).all()[0].name)
+    'ben'
+    >>> transaction.abort()
+
+If this is a problem you may register the events and tell them to place the
+session in the 'changed' state initially.
+
+    >>> Session.remove()
+    >>> register(Session, 'changed')
+    <zope.sqlalchemy.datamanager.ZopeTransactionEvents object at ...>
+    >>> session = Session()
+    >>> conn = session.connection()
+    >>> conn.execute(users.update().where(users.c.name=='ben'), {'name': 'bob'})
+    <sqlalchemy.engine... object at ...>
+    >>> transaction.commit()
+    >>> session = Session()
+    >>> str(session.query(User).all()[0].name)
+    'bob'
+    >>> transaction.abort()
+
+The `mark_changed` function accepts a kwarg for `keep_session` which defaults
+to `False` and is unaware of the registered extensions `keep_session`
+configuration.
+
+If you intend for `keep_session` to be True, you can specify it explicitly:
+
+    >>> from zope.sqlalchemy import mark_changed
+    >>> mark_changed(session, keep_session=True)
+    >>> transaction.commit()
+
+You can also use a configured extension to preserve this argument:
+
+    >>> sessionExtension = register(session, keep_session=True)
+    >>> sessionExtension.mark_changed(session)
+    >>> transaction.commit()
+
+
+Long-lasting session scopes
+---------------------------
+
+The default behaviour of the transaction integration is to close the session
+after a commit. You can tell by trying to access an object after committing:
+
+    >>> bob = session.query(User).all()[0]
+    >>> transaction.commit()
+    >>> bob.name
+    Traceback (most recent call last):
+    sqlalchemy.orm.exc.DetachedInstanceError: Instance <User at ...> is not bound to a Session; attribute refresh operation cannot proceed...
+
+To support cases where a session needs to last longer than a transaction (useful
+in test suites) you can specify to keep a session when registering the events:
+
+    >>> Session = scoped_session(sessionmaker(bind=engine,
+    ... twophase=TEST_TWOPHASE))
+    >>> register(Session, keep_session=True)
+    <zope.sqlalchemy.datamanager.ZopeTransactionEvents object at ...>
+    >>> session = Session()
+    >>> bob = session.query(User).all()[0]
+    >>> bob.name = 'bobby'
+    >>> transaction.commit()
+    >>> bob.name
+    'bobby'
+
+The session must then be closed manually:
+
+    >>> session.close()
+
+
+Development version
+===================
+
+`GIT version <https://github.com/zopefoundation/zope.sqlalchemy>`_
+
+
+Changes
+=======
+
+3.1 (2023-09-12)
+----------------
+
+- Fix ``psycopg.errors.OperationalError.sqlstate`` can be ``None``.
+  (`#81 <https://github.com/zopefoundation/zope.sqlalchemy/issues/81>`_)
+
+
+3.0 (2023-06-01)
+----------------
+
+- Add support for SQLAlchemy 2.0 and for new psycopg v3 backend.
+  (`#79 <https://github.com/zopefoundation/zope.sqlalchemy/pull/79>`_)
+
+**Breaking Changes**
+
+- No longer allow calling ``session.commit()`` within a manual nested database
+  transaction (a savepoint). If you want to use savepoints directly in code that is
+  not aware of ``transaction.savepoint()`` with ``session.begin_nested()`` then
+  use the savepoint returned by the function to commit just the nested transaction
+  i.e. ``savepoint = session.begin_nested(); savepoint.commit()`` or use it as a
+  context manager i.e. ``with session.begin_nested():``.
+  (`for details see #79 <https://github.com/zopefoundation/zope.sqlalchemy/pull/79#issuecomment-1516069841>`_)
+
+
+2.0 (2023-02-06)
+----------------
+
+- Drop support for Python 2.7, 3.5, 3.6.
+
+- Drop support for ``SQLAlchemy < 1.1``
+  (`#65 <https://github.com/zopefoundation/zope.sqlalchemy/issues/65>`_)
+
+- Add support for Python 3.10, 3.11.
+
+
+1.6 (2021-09-06)
+----------------
+
+- Add support for Python 2.7 on SQLAlchemy 1.4.
+  (`#71 <https://github.com/zopefoundation/zope.sqlalchemy/issues/71>`_)
+
+
+1.5 (2021-07-14)
+----------------
+
+- Call ``mark_changed`` also on the ``do_orm_execute`` event if the operation
+  is an insert, update or delete. This is SQLAlchemy >= 1.4 only, as it
+  introduced that event.
+  (`#67 <https://github.com/zopefoundation/zope.sqlalchemy/issues/67>`_)
+
+- Fixup get transaction. There was regression introduced in 1.4.
+  (`#66 <https://github.com/zopefoundation/zope.sqlalchemy/issues/66>`_)
+
+
+1.4 (2021-04-26)
+----------------
+
+- Add ``mark_changed`` and ``join_transaction`` methods to
+  ``ZopeTransactionEvents``.
+  (`#46 <https://github.com/zopefoundation/zope.sqlalchemy/issues/46>`_)
+
+- Reduce DeprecationWarnings with SQLAlchemy 1.4 and require at least
+  SQLAlchemy >= 0.9.
+  (`#54 <https://github.com/zopefoundation/zope.sqlalchemy/issues/54>`_)
+
+- Add support for SQLAlchemy 1.4.
+  (`#58 <https://github.com/zopefoundation/zope.sqlalchemy/issues/58>`_)
+
+- Prevent using an SQLAlchemy 1.4 version with broken flush support.
+  (`#57 <https://github.com/zopefoundation/zope.sqlalchemy/issues/57>`_)
+
+
+1.3 (2020-02-17)
+----------------
+
+* ``.datamanager.register()`` now returns the ``ZopeTransactionEvents``
+  instance which was used to register the events. This allows to change its
+  parameters afterwards.
+  (`#40 <https://github.com/zopefoundation/zope.sqlalchemy/pull/40>`_)
+
+* Add preliminary support for Python 3.9a3.
+
+
+1.2 (2019-10-17)
+----------------
+
+**Breaking Changes**
+
+* Drop support for Python 3.4.
+
+* Add support for Python 3.7 and 3.8.
+
+* Fix deprecation warnings for the event system. We already used it in general
+  but still leveraged the old extension mechanism in some places.
+  (`#31 <https://github.com/zopefoundation/zope.sqlalchemy/issues/31>`_)
+
+  To make things clearer we renamed the ``ZopeTransactionExtension`` class
+  to ``ZopeTransactionEvents``. Existing code using the 'register' version
+  stays compatible.
+
+**Upgrade from 1.1**
+
+Your old code like this:
+
+.. code-block:: python
+
+    from zope.sqlalchemy import ZopeTransactionExtension
+
+    DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension(), **options))
+
+becomes:
+
+.. code-block:: python
+
+    from zope.sqlalchemy import register
+
+    DBSession = scoped_session(sessionmaker(**options))
+    register(DBSession)
+
+
+
+1.1 (2019-01-03)
+----------------
+
+* Add support to MySQL using pymysql.
+
+
+1.0 (2018-01-31)
+----------------
+
+* Add support for Python 3.4 up to 3.6.
+
+* Support SQLAlchemy 1.2.
+
+* Drop support for Python 2.6, 3.2 and 3.3.
+
+* Drop support for transaction < 1.6.0.
+
+* Fix hazard that could cause SQLAlchemy session not to be committed when
+  transaction is committed in rare situations.
+  (`#23 <https://github.com/zopefoundation/zope.sqlalchemy/pull/23>`_)
+
+
+0.7.7 (2016-06-23)
+------------------
+
+* Support SQLAlchemy 1.1.
+  (`#15 <https://github.com/zopefoundation/zope.sqlalchemy/issues/15>`_)
+
+
+0.7.6 (2015-03-20)
+------------------
+
+* Make version check in register compatible with prereleases.
+
+0.7.5 (2014-06-17)
+------------------
+
+* Ensure mapped objects are expired following a ``transaction.commit()`` when
+  no database commit was required.
+  (`#8 <https://github.com/zopefoundation/zope.sqlalchemy/issues/8>`_)
+
+
+0.7.4 (2014-01-06)
+------------------
+
+* Allow ``session.commit()`` on nested transactions to facilitate integration
+  of existing code that might not use ``transaction.savepoint()``.
+  (`#1 <https://github.com/zopefoundation/zope.sqlalchemy/issues/1>`_)
+
+* Add a new function zope.sqlalchemy.register(), which replaces the
+  direct use of ZopeTransactionExtension to make use
+  of the newer SQLAlchemy event system to establish instrumentation on
+  the given Session instance/class/factory.   Requires at least
+  SQLAlchemy 0.7.
+  (`#4 <https://github.com/zopefoundation/zope.sqlalchemy/issues/4>`_)
+
+* Fix `keep_session=True` doesn't work when a transaction is joined by flush
+  and other manngers bug.
+  (`#5 <https://github.com/zopefoundation/zope.sqlalchemy/issues/5>`_)
+
+
+0.7.3 (2013-09-25)
+------------------
+
+* Prevent the ``Session`` object from getting into a "wedged" state if joining
+  a transaction fails. With thread scoped sessions that are reused this can cause
+  persistent errors requiring a server restart.
+  (`#2 <https://github.com/zopefoundation/zope.sqlalchemy/issues/2>`_)
+
+0.7.2 (2013-02-19)
+------------------
+
+* Make life-time of sessions configurable. Specify `keep_session=True` when
+  setting up the SA extension.
+
+* Python 3.3 compatibility.
+
+0.7.1 (2012-05-19)
+------------------
+
+* Use ``@implementer`` as a class decorator instead of ``implements()`` at
+  class scope for compatibility with ``zope.interface`` 4.0.  This requires
+  ``zope.interface`` >= 3.6.0.
+
+0.7 (2011-12-06)
+----------------
+
+* Python 3.2 compatibility.
+
+0.6.1 (2011-01-08)
+------------------
+
+* Update datamanager.mark_changed to handle sessions which have not yet logged
+  a (ORM) query.
+
+
+0.6 (2010-07-24)
+----------------
+
+* Implement should_retry for sqlalchemy.orm.exc.ConcurrentModificationError
+  and serialization errors from PostgreSQL and Oracle.
+  (Specify transaction>=1.1 to use this functionality.)
+
+* Include license files.
+
+* Add ``transaction_manager`` attribute to data managers for compliance with
+  IDataManager interface.
+
+0.5 (2010-06-07)
+----------------
+
+* Remove redundant session.flush() / session.clear() on savepoint operations.
+  These were only needed with SQLAlchemy 0.4.x.
+
+* SQLAlchemy 0.6.x support. Require SQLAlchemy >= 0.5.1.
+
+* Add support for running ``python setup.py test``.
+
+* Pull in pysqlite explicitly as a test dependency.
+
+* Setup sqlalchemy mappers in test setup and clear them in tear down. This
+  makes the tests more robust and clears up the global state after. It
+  caused the tests to fail when other tests in the same run called
+  clear_mappers.
+
+0.4 (2009-01-20)
+----------------
+
+Bugs fixed:
+
+* Only raise errors in tpc_abort if we have committed.
+
+* Remove the session id from the SESSION_STATE just before we de-reference the
+  session (i.e. all work is already successfuly completed). This fixes cases
+  where the transaction commit failed but SESSION_STATE was already cleared.  In
+  those cases, the transaction was wedeged as abort would always error.  This
+  happened on PostgreSQL where invalid SQL was used and the error caught.
+
+* Call session.flush() unconditionally in tpc_begin.
+
+* Change error message on session.commit() to be friendlier to non zope users.
+
+Feature changes:
+
+* Support for bulk update and delete with SQLAlchemy 0.5.1
+
+0.3 (2008-07-29)
+----------------
+
+Bugs fixed:
+
+* New objects added to a session did not cause a transaction join, so were not
+  committed at the end of the transaction unless the database was accessed.
+  SQLAlchemy 0.4.7 or 0.5beta3 now required.
+
+Feature changes:
+
+* For correctness and consistency with ZODB, renamed the function 'invalidate'
+  to 'mark_changed' and the status 'invalidated' to 'changed'.
+
+0.2 (2008-06-28)
+----------------
+
+Feature changes:
+
+* Updated to support SQLAlchemy 0.5. (0.4.6 is still supported).
+
+0.1 (2008-05-15)
+----------------
+
+* Initial public release.

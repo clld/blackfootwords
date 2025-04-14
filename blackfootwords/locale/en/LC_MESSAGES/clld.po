@@ -1,0 +1,34 @@
+# English translations for blackfootwords.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the blackfootwords
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: blackfootwords 0.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-04-14 18:16-0400\n"
+"PO-Revision-Date: 2025-04-14 17:02-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: blackfootwords/__init__.py:13
+msgid "Languages"
+msgstr "Dialects"
+
+#: blackfootwords/__init__.py:14
+msgid "Parameters"
+msgstr "Translations"
+
+#: blackfootwords/__init__.py:15
+msgid "Values"
+msgstr "Lemmas"
+
+
