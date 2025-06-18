@@ -10,7 +10,6 @@ from clld.lib import bibtex
 
 from pycldf import Sources
 
-
 import blackfootwords
 from blackfootwords import models
 

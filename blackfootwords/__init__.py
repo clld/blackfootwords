@@ -8,10 +8,6 @@ from clldutils.svg import pie, icon, data_url
 # we must make sure custom models are known at database initialization!
 from blackfootwords import models
 
-
-
-
-
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
