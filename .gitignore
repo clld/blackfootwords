@@ -35,5 +35,11 @@ nosetests.xml
 # pycharm
 .idea
 
+# SQLite files
+*.sqlite
+
+# Environment directories
+.venv/
+
 #venv
 venv

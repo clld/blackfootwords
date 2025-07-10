@@ -10,7 +10,6 @@ from clld.lib import bibtex
 
 from pycldf import Sources
 
-
 import blackfootwords
 from blackfootwords import models
 
@@ -88,6 +87,15 @@ def main(args):
             name=form['form'],
             valueset=vs,
         )
+    
+    # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):
+    #     data.add(
+    #         models.Words,
+    #         word['id'],
+    #         id=word['id'],
+    #         form=word['form'],
+    #         source_id=word['source_id'],
+    #     )
 
     for (vsid, sid), pages in refs.items():
         DBSession.add(common.ValueSetReference(
