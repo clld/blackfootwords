@@ -40,3 +40,6 @@ nosetests.xml
 
 # Environment directories
 .venv/
+
+#venv
+venv
