@@ -65,8 +65,10 @@ def main(args):
             id=param['id'],
             name='{} [{}]'.format(param['name'], param['id']),
         )
-    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference', 'source'):
+    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference', 'comment'):
+    # for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'parameterReference', 'comment'):
         vsid = (form['languageReference'], form['parameterReference'])
+        vsid = (form['parameterReference'])
         vs = data['ValueSet'].get(vsid)
         if not vs:
             vs = data.add(
@@ -75,17 +77,18 @@ def main(args):
                 id='-'.join(vsid),
                 language=data['Variety'][form['languageReference']],
                 parameter=data['Concept'][form['parameterReference']],
-                contribution=contrib,
+                # contribution=contrib,
             )
-        for ref in form.get('source', []):
-            sid, pages = Sources.parse(ref)
-            refs[(vsid, sid)].append(pages)
+        # for ref in form.get('source', []):
+        #     sid, pages = Sources.parse(ref)
+        #     refs[(vsid, sid)].append(pages)
         data.add(
             common.Value,
             form['id'],
             id=form['id'],
             name=form['form'],
             valueset=vs,
+            description=form['comment']
         )
     
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):

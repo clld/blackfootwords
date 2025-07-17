@@ -6,7 +6,7 @@ from clld.lib.bibtex import Record
 clean_bibrec = Record(bibrec.genre, bibrec.id)
 # Add all fields except 'note'
 for k, v in bibrec.items():
-    if k != 'note' and k != 'howpublished':
+    if k != 'note' and k != 'howpublished' and k != 'annote':
         clean_bibrec[k] = v
 %>
 

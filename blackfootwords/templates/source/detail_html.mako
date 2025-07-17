@@ -48,7 +48,7 @@ for k, v in bibrec.items():
     </div>
     % if hasattr(ctx, 'note') and ctx.note:
         <div style="margin-bottom: 1.5em;">
-            <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Orthography</h3>
+            <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Notes</h3>
             <div style="padding: 0.7em 1em; background: #f0f4f8; border-radius: 6px; color: #333;">${ctx.note | n}</div>
         </div>
     % endif
