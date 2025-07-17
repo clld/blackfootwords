@@ -77,18 +77,16 @@ def main(args):
                 id='-'.join(vsid),
                 language=data['Variety'][form['languageReference']],
                 parameter=data['Concept'][form['parameterReference']],
-                # contribution=contrib,
             )
-        # for ref in form.get('source', []):
-        #     sid, pages = Sources.parse(ref)
-        #     refs[(vsid, sid)].append(pages)
+
         data.add(
-            common.Value,
+            models.Lemma,
             form['id'],
             id=form['id'],
             name=form['form'],
+            categories='/'.join(form['LabLemmaCategory']),
             valueset=vs,
-            description=form['comment']
+            # description=form['comment']
         )
     
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):

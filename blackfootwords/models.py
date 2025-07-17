@@ -25,6 +25,10 @@ class Variety(CustomModelMixin, common.Language):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
     glottocode = Column(Unicode)
 
+@implementer(interfaces.IValue)
+class Lemma(CustomModelMixin, common.Value):
+    pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
+    categories = Column(Unicode)
 
 @implementer(interfaces.IParameter)
 class Concept(CustomModelMixin, common.Parameter):
