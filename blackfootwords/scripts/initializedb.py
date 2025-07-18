@@ -65,10 +65,10 @@ def main(args):
             id=param['id'],
             name='{} [{}]'.format(param['name'], param['id']),
         )
-    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference', 'comment'):
+    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference'):
     # for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'parameterReference', 'comment'):
         vsid = (form['languageReference'], form['parameterReference'])
-        vsid = (form['parameterReference'])
+        # vsid = (form['parameterReference'])
         vs = data['ValueSet'].get(vsid)
         if not vs:
             vs = data.add(
