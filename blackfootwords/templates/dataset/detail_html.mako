@@ -1,6 +1,4 @@
 <%inherit file="../home_comp.mako"/>
-<link href="${request.static_url('blackfootwords:static/css/introjs.min.css')}" rel="stylesheet">
-<link href="${request.static_url('blackfootwords:static/project.css')}" rel="stylesheet">
 
 <%def name="sidebar()">
     <div class="well">
