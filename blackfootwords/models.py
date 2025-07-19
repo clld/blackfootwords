@@ -15,6 +15,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from clld import interfaces
 from clld.db.meta import Base, CustomModelMixin
 from clld.db.models import common
+from clld.web.datatables.base import DataTable
+from sqlalchemy import Column, Unicode, ForeignKey
+from sqlalchemy.orm import relationship
 
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
@@ -29,8 +32,17 @@ class Variety(CustomModelMixin, common.Language):
 class Lemma(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     categories = Column(Unicode)
+    __mapper_args__ = {'polymorphic_identity': 'lemma'}
+
+@implementer(interfaces.IValue)
+class Stem(CustomModelMixin, common.Value):
+    pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
+    lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
+    lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
+    __mapper_args__ = {'polymorphic_identity': 'stem'}
 
 @implementer(interfaces.IParameter)
 class Concept(CustomModelMixin, common.Parameter):
     pk = Column(Integer, ForeignKey('parameter.pk'), primary_key=True)
     concepticon_id = Column(Unicode)
+
