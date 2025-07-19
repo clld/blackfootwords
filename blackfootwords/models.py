@@ -19,6 +19,8 @@ from clld.web.datatables.base import DataTable
 from sqlalchemy import Column, Unicode, ForeignKey
 from sqlalchemy.orm import relationship
 
+from blackfootwords.interfaces import IStem
+
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
 #-----------------------------------------------------------------------------
@@ -34,7 +36,13 @@ class Lemma(CustomModelMixin, common.Value):
     categories = Column(Unicode)
     __mapper_args__ = {'polymorphic_identity': 'lemma'}
 
-@implementer(interfaces.IValue)
+# @implementer(interfaces.IValue)
+# class Stem(CustomModelMixin, common.Value):
+#     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
+#     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
+#     lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
+#     __mapper_args__ = {'polymorphic_identity': 'stem'}
+@implementer(IStem)
 class Stem(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))

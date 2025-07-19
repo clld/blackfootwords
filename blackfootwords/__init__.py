@@ -11,6 +11,7 @@ from clld.web.adapters.base import adapter_factory
 # we must make sure custom models are known at database initialization!
 from blackfootwords import models
 from .models import Stem
+from .interfaces import IStem
 
 
 # _ is a recognized name for a function to mark translatable strings
@@ -26,7 +27,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.include('clld.web.app')
     config.add_route('words', '/words')
-    config.register_resource('stem', Stem, IValue, with_index=True)
+    config.register_resource('stem', Stem, IStem, with_index=True)
     # config.register_resource('stem', Stem, IValue)
     # config.add_route('stems', '/stems')
     config.register_menu(
