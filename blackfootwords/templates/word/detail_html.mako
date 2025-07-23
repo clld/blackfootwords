@@ -5,7 +5,7 @@
 from blackfootwords import models
 %>
 
-<h2>${_('Word')} ${ctx.name}</h2>
+<h2>${_('Word ')}<span style="color: #014d4e">${ctx.name}</span></h2>
 <dl>
     <dt>Translation:</dt>
     <dd>${h.link(request, ctx.parameter)}</dd>

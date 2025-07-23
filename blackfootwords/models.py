@@ -41,13 +41,15 @@ class Stem(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
+    word_pk = Column(Integer, ForeignKey('word.pk'))
+    word = relationship('Word', backref='stems', foreign_keys=[word_pk])
     __mapper_args__ = {'polymorphic_identity': 'stem'}
 
 @implementer(IMorpheme)
 class Morpheme(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
-    # stem_pk = Column(Integer, ForeignKey('stem.pk'))
-    # stem = relationship('Stem', backref='morphemes', foreign_keys=[stem_pk])
+    stem_pk = Column(Integer, ForeignKey('stem.pk'))
+    stem = relationship('Stem', backref='morphemes', foreign_keys=[stem_pk])
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='morphemes', foreign_keys=[lemma_pk])
 

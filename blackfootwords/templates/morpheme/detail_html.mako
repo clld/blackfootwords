@@ -5,10 +5,10 @@
 from blackfootwords import models
 %>
 
-<h2>${_('Morpheme')} ${ctx.domainelement.name if ctx.domainelement else ctx.name}</h2>
+<h2>${_('Morpheme ')}<span style="color: #014d4e">${ctx.domainelement.name if ctx.domainelement else ctx.name}</span></h2>
 <dl>
+    <dt>Lemma:</dt>
+    <dd>${h.link(request, ctx.lemma)}</dd>
     <dt>Contained in stem:</dt>
     <dd>${h.link(request, ctx.stem)}</dd>
-    <dt>Lemmatized form of stem:</dt>
-    <dd>${h.link(request, ctx.stem.lemma)}</dd>
 </dl>

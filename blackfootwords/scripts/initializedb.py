@@ -90,42 +90,6 @@ def main(args):
             valueset=vs,
             polymorphic_type='lemma',
         )
-    
-    # stems
-    for stem in args.cldf.iter_rows('stems.csv', 'id', 'form', 'formReference'):
-        lemma_id = stem['formReference']
-        lemma = data['Lemma'].get(lemma_id)
-        if not lemma:
-            print(f"Warning: Lemma with id {lemma_id} not found for stem {stem['id']}")
-            continue
-        if not hasattr(lemma, 'valueset'):
-            print(f"Warning: Lemma {lemma_id} has no valueset for stem {stem['id']}")
-            continue
-        data.add(
-            models.Stem,
-            stem['id'],
-            id=stem['id'],
-            name=stem['form'],
-            lemma=lemma,
-            valueset=lemma.valueset,
-            polymorphic_type='stem',
-        )
-    
-    #morphemes
-    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Lemma_ID'):
-        lemma_id = morpheme['Lemma_ID']
-        lemma = data['Lemma'].get(lemma_id)
-        if not lemma:
-            print(f"Warning: Lemma with id {lemma_id} not found for morpheme {morpheme['id']}")
-            continue
-        data.add(
-            models.Morpheme,
-            morpheme['id'],
-            id=morpheme['id'],
-            name=morpheme['form'],
-            valueset=lemma.valueset,
-            lemma=lemma,
-        )
 
     #words
     for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference'):
@@ -144,6 +108,53 @@ def main(args):
             # source=source,
             language=language,
             parameter=parameter,
+        )
+    
+    # stems
+    for stem in args.cldf.iter_rows('stems.csv', 'id', 'form', 'formReference', 'Word_ID'):
+        lemma_id = stem['formReference']
+        lemma = data['Lemma'].get(lemma_id)
+        word_id = stem['Word_ID']
+        word = data['Word'].get(word_id)
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for stem {stem['id']}")
+            continue
+        if not hasattr(lemma, 'valueset'):
+            print(f"Warning: Lemma {lemma_id} has no valueset for stem {stem['id']}")
+            continue
+        if not word:
+            print(f"Warning: Word with id {word_id} not found for stem {stem['id']}")
+            continue
+        data.add(
+            models.Stem,
+            stem['id'],
+            id=stem['id'],
+            name=stem['form'],
+            lemma=lemma,
+            word=word,
+            valueset=lemma.valueset,
+        )
+    
+    #morphemes
+    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Lemma_ID', 'Stem_ID'):
+        lemma_id = morpheme['Lemma_ID']
+        lemma = data['Lemma'].get(lemma_id)
+        stem_id = morpheme['Stem_ID']
+        stem = data['Stem'].get(stem_id)
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for morpheme {morpheme['id']}")
+            continue
+        if not stem:
+            print(f"Warning: Stem with id {stem_id} not found for morpheme {morpheme['id']}")
+            continue
+        data.add(
+            models.Morpheme,
+            morpheme['id'],
+            id=morpheme['id'],
+            name=morpheme['form'],
+            valueset=lemma.valueset,
+            lemma=lemma,
+            stem=stem,
         )
 
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):

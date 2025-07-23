@@ -5,7 +5,7 @@
 from blackfootwords import models
 %>
 
-<h2>${_('Lemma')} ${ctx.domainelement.name if ctx.domainelement else ctx.name}</h2>
+<h2>${_('Lemma ')}<span style="color: #014d4e">${ctx.domainelement.name if ctx.domainelement else ctx.name}</span></h2>
 <dl>
     <dt>Translation:</dt>
     <dd>${h.link(request, ctx.valueset.parameter)}</dd>
@@ -17,4 +17,10 @@ from blackfootwords import models
     <dt>${k}</dt>
     <dd>${v}</dd>
     % endfor
+    
+    <dt>Stems:</dt>
+    ${request.get_datatable('stems', models.Stem, lemma=ctx).render()}
+
+    <dt>Morphemes:</dt>
+    ${request.get_datatable('morphemes', models.Morpheme, lemma=ctx).render()}
 </dl>
