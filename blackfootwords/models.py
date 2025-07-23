@@ -19,7 +19,7 @@ from clld.web.datatables.base import DataTable
 from sqlalchemy import Column, Unicode, ForeignKey
 from sqlalchemy.orm import relationship
 
-from blackfootwords.interfaces import IStem
+from blackfootwords.interfaces import IStem, IWord
 
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
@@ -36,18 +36,20 @@ class Lemma(CustomModelMixin, common.Value):
     categories = Column(Unicode)
     __mapper_args__ = {'polymorphic_identity': 'lemma'}
 
-# @implementer(interfaces.IValue)
-# class Stem(CustomModelMixin, common.Value):
-#     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
-#     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
-#     lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
-#     __mapper_args__ = {'polymorphic_identity': 'stem'}
 @implementer(IStem)
 class Stem(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
     __mapper_args__ = {'polymorphic_identity': 'stem'}
+
+@implementer(interfaces.IUnit)
+class Word(CustomModelMixin, common.Unit):
+    pk = Column(Integer, ForeignKey('unit.pk'), primary_key=True)
+    parameter_pk = Column(Integer, ForeignKey('parameter.pk'))
+    parameter = relationship('Parameter', backref='words', foreign_keys=[parameter_pk])
+    # source_pk = Column(Integer, ForeignKey('source.pk'))
+    # source = relationship('Source', backref='sources', foreign_keys=[source_pk])
 
 @implementer(interfaces.IParameter)
 class Concept(CustomModelMixin, common.Parameter):

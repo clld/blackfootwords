@@ -43,9 +43,19 @@ class LemmaCol(LinkCol):
         return {'label': item.lemma.name if item.lemma else 'N/A'}
 
 class Stems(DataTable):
+    def __init__(self, req, model, **kw):
+        super().__init__(req, model, **kw)
+        self.lemma_filter = kw.get('lemma')
+    
     def base_query(self, query):
         """Ensure the lemma relationship is loaded"""
-        return query.options(joinedload(models.Stem.lemma))
+        query = query.options(joinedload(models.Stem.lemma))
+        
+        # Handle lemma filtering if provided
+        if self.lemma_filter:
+            query = query.filter(models.Stem.lemma == self.lemma_filter)
+        
+        return query
     
     def col_defs(self):
         return [
@@ -53,8 +63,34 @@ class Stems(DataTable):
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
         ]
 
+class WordFormCol(LinkCol):
+    def get_obj(self, item):
+        return item
+    def get_attrs(self, item):
+        return {'label': item.name}
+    
+class WordTranslationCol(LinkCol):
+    def get_obj(self, item):
+        return item.parameter
+    def get_attrs(self, item):
+        return {'label': item.parameter.name}
+    
+class WordLanguageCol(LinkCol):
+    def get_obj(self, item):
+        return item.language
+    def get_attrs(self, item):
+        return {'label': item.language.name}
+
+class Words(DataTable):
+    def col_defs(self):
+        return [
+            WordFormCol(self, 'form', model_col=models.Word.name),
+            WordTranslationCol(self, 'parameter', model_col=models.Concept.name, get_object=lambda i: i.parameter),
+            WordLanguageCol(self, 'language', model_col=models.Variety.name)
+        ]
 
 def includeme(config):
     """register custom datatables"""
     config.register_datatable('values', Lemmas)
     config.register_datatable('stems', Stems) 
+    config.register_datatable('words', Words)

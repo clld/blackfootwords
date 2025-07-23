@@ -92,7 +92,6 @@ def main(args):
         )
     
     # stems
-    stem_count = 0
     for stem in args.cldf.iter_rows('stems.csv', 'id', 'form', 'formReference'):
         lemma_id = stem['formReference']
         lemma = data['Lemma'].get(lemma_id)
@@ -111,9 +110,25 @@ def main(args):
             valueset=lemma.valueset,
             polymorphic_type='stem',
         )
-        stem_count += 1
-    
-    print(f"Loaded {stem_count} stems into database")
+
+    #words
+    for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference'):
+        # source_id = word['Source_ID']
+        # source = data['Source'].get(source_id)
+        language_id = word['languageReference']
+        language = data['Variety'].get(language_id)
+        parameter_id = word['parameterReference']
+        parameter = data['Concept'].get(parameter_id)
+        
+        data.add(
+            models.Word,
+            word['id'],
+            id=word['id'],
+            name=word['form'],
+            # source=source,
+            language=language,
+            parameter=parameter,
+        )
 
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):
     #     data.add(
