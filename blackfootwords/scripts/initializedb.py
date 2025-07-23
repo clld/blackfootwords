@@ -110,6 +110,22 @@ def main(args):
             valueset=lemma.valueset,
             polymorphic_type='stem',
         )
+    
+    #morphemes
+    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Stem_ID'):
+        stem_id = morpheme['Stem_ID']
+        stem = data['Stem'].get(stem_id)
+        if not stem:
+            print(f"Warning: Stem with id {stem_id} not found for morpheme {morpheme['id']}")
+            continue
+        data.add(
+            models.Morpheme,
+            morpheme['id'],
+            id=morpheme['id'],
+            name=morpheme['form'],
+            valueset=stem.valueset,
+            stem=stem,
+        )
 
     #words
     for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference'):
@@ -119,7 +135,7 @@ def main(args):
         language = data['Variety'].get(language_id)
         parameter_id = word['parameterReference']
         parameter = data['Concept'].get(parameter_id)
-        
+
         data.add(
             models.Word,
             word['id'],

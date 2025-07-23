@@ -19,7 +19,7 @@ from clld.web.datatables.base import DataTable
 from sqlalchemy import Column, Unicode, ForeignKey
 from sqlalchemy.orm import relationship
 
-from blackfootwords.interfaces import IStem, IWord
+from blackfootwords.interfaces import IStem, IMorpheme
 
 #-----------------------------------------------------------------------------
 # specialized common mapper classes
@@ -42,6 +42,12 @@ class Stem(CustomModelMixin, common.Value):
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='stems', foreign_keys=[lemma_pk])
     __mapper_args__ = {'polymorphic_identity': 'stem'}
+
+@implementer(IMorpheme)
+class Morpheme(CustomModelMixin, common.Value):
+    pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
+    stem_pk = Column(Integer, ForeignKey('stem.pk'))
+    stem = relationship('Stem', backref='morphemes', foreign_keys=[stem_pk])
 
 @implementer(interfaces.IUnit)
 class Word(CustomModelMixin, common.Unit):

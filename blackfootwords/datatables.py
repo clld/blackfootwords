@@ -6,6 +6,8 @@ from clld.db.util import get_distinct_values
 from blackfootwords import models
 from clld.web.datatables.base import DataTable
 
+
+## lemmas table ##
 class ParameterCol(LinkCol):
     def get_obj(self, item):
         return item.valueset
@@ -28,8 +30,40 @@ class Lemmas(Values):
             choices=get_distinct_values(models.Lemma.categories),
         ))
         return res
+    
+## morphemes table ##
+class MorphemeFormCol(LinkCol):
+    def get_obj(self, item):
+        return item
+    def get_attrs(self, item):
+        return {'label': item.name}
+class StemCol(LinkCol):
+    def get_obj(self, item):
+        return item.stem
+    def get_attrs(self, item):
+        return {'label': item.stem.name if item.stem else 'N/A'}
+class Morphemes(DataTable):
+    def __init__(self, req, model, **kw):
+        super().__init__(req, model, **kw)
+        self.stem_filter = kw.get('stem')
+    
+    def base_query(self, query):
+        """Ensure the lemma relationship is loaded"""
+        query = query.options(joinedload(models.Morpheme.stem))
+        
+        # Handle lemma filtering if provided
+        if self.stem_filter:
+            query = query.filter(models.Morpheme.stem == self.stem_filter)
+        
+        return query
+    
+    def col_defs(self):
+        return [
+            MorphemeFormCol(self, 'form', model_col=models.Morpheme.name),
+            StemCol(self, 'stem', model_col=models.Stem.name),
+        ]
 
-
+## stems table ##
 class StemFormCol(LinkCol):
     def get_obj(self, item):
         return item
@@ -63,6 +97,8 @@ class Stems(DataTable):
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
         ]
 
+
+## words table ##
 class WordFormCol(LinkCol):
     def get_obj(self, item):
         return item
@@ -93,4 +129,5 @@ def includeme(config):
     """register custom datatables"""
     config.register_datatable('values', Lemmas)
     config.register_datatable('stems', Stems) 
+    config.register_datatable('morphemes', Morphemes) 
     config.register_datatable('words', Words)

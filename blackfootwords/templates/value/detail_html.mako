@@ -18,4 +18,3 @@ from blackfootwords import models
     <dd>${v}</dd>
     % endfor
 </dl>
-${request.get_datatable('stems', models.Stem, lemma=ctx).render()}

@@ -10,8 +10,8 @@ from clld.web.adapters.base import adapter_factory
 
 # we must make sure custom models are known at database initialization!
 from blackfootwords import models
-from .models import Stem, Word
-from .interfaces import IStem, IWord
+from .models import Stem, Word, Morpheme
+from .interfaces import IStem, IMorpheme
 
 
 # _ is a recognized name for a function to mark translatable strings
@@ -27,19 +27,19 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.include('clld.web.app')
     config.register_resource('stem', Stem, IStem, with_index=True)
+    config.register_resource('morpheme', Morpheme, IMorpheme, with_index=True)
     config.register_resource('word', Word, IUnit, with_index=True)
     # config.register_resource('stem', Stem, IValue)
     # config.add_route('stems', '/stems')
     config.register_menu(
         ('dataset', functools.partial(menu_item, 'dataset', label='Home')),
         ('parameters', functools.partial(menu_item, 'parameters')),
-        ('languages', functools.partial(menu_item, 'languages')),
         ('values', functools.partial(menu_item, 'values')),
-        ('sources', functools.partial(menu_item, 'sources')),
-        # ('words', functools.partial(menu_item, 'words')),
         ('stems', lambda ctx, req: (req.route_url('stems'), 'Stems')),
+        ('morphemes', lambda ctx, req: (req.route_url('morphemes'), 'Morphemes')),
         ('words', lambda ctx, req: (req.route_url('words'), 'Words')),
-        # ('apics_wals', lambda ctx, rq: (rq.route_url('walss'), u'WALS\u2013APiCS')),
+        ('languages', functools.partial(menu_item, 'languages')),
+        ('sources', functools.partial(menu_item, 'sources')),
     ) 
     config.scan()
 
