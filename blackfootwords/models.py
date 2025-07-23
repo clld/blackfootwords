@@ -46,8 +46,10 @@ class Stem(CustomModelMixin, common.Value):
 @implementer(IMorpheme)
 class Morpheme(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
-    stem_pk = Column(Integer, ForeignKey('stem.pk'))
-    stem = relationship('Stem', backref='morphemes', foreign_keys=[stem_pk])
+    # stem_pk = Column(Integer, ForeignKey('stem.pk'))
+    # stem = relationship('Stem', backref='morphemes', foreign_keys=[stem_pk])
+    lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
+    lemma = relationship('Lemma', backref='morphemes', foreign_keys=[lemma_pk])
 
 @implementer(interfaces.IUnit)
 class Word(CustomModelMixin, common.Unit):

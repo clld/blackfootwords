@@ -112,19 +112,19 @@ def main(args):
         )
     
     #morphemes
-    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Stem_ID'):
-        stem_id = morpheme['Stem_ID']
-        stem = data['Stem'].get(stem_id)
-        if not stem:
-            print(f"Warning: Stem with id {stem_id} not found for morpheme {morpheme['id']}")
+    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Lemma_ID'):
+        lemma_id = morpheme['Lemma_ID']
+        lemma = data['Lemma'].get(lemma_id)
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for morpheme {morpheme['id']}")
             continue
         data.add(
             models.Morpheme,
             morpheme['id'],
             id=morpheme['id'],
             name=morpheme['form'],
-            valueset=stem.valueset,
-            stem=stem,
+            valueset=lemma.valueset,
+            lemma=lemma,
         )
 
     #words

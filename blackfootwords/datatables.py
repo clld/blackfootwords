@@ -37,30 +37,30 @@ class MorphemeFormCol(LinkCol):
         return item
     def get_attrs(self, item):
         return {'label': item.name}
-class StemCol(LinkCol):
+class LemmaCol(LinkCol):
     def get_obj(self, item):
-        return item.stem
+        return item.lemma
     def get_attrs(self, item):
-        return {'label': item.stem.name if item.stem else 'N/A'}
+        return {'label': item.lemma.name if item.lemma else 'N/A'}
+# class StemCol(LinkCol):
+#     def get_obj(self, item):
+#         return item.stem
+#     def get_attrs(self, item):
+#         return {'label': item.stem.name if item.stem else 'N/A'}
 class Morphemes(DataTable):
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.stem_filter = kw.get('stem')
-    
+        self.lemma_filter = kw.get('lemma')
     def base_query(self, query):
         """Ensure the lemma relationship is loaded"""
-        query = query.options(joinedload(models.Morpheme.stem))
-        
-        # Handle lemma filtering if provided
-        if self.stem_filter:
-            query = query.filter(models.Morpheme.stem == self.stem_filter)
-        
+        query = query.options(joinedload(models.Morpheme.lemma))
+        if self.lemma_filter:
+            query = query.filter(models.Morpheme.lemma == self.lemma_filter)
         return query
-    
     def col_defs(self):
         return [
             MorphemeFormCol(self, 'form', model_col=models.Morpheme.name),
-            StemCol(self, 'stem', model_col=models.Stem.name),
+            LemmaCol(self, 'lemma', model_col=models.Lemma.name),
         ]
 
 ## stems table ##
@@ -69,12 +69,6 @@ class StemFormCol(LinkCol):
         return item
     def get_attrs(self, item):
         return {'label': item.name}
-
-class LemmaCol(LinkCol):
-    def get_obj(self, item):
-        return item.lemma
-    def get_attrs(self, item):
-        return {'label': item.lemma.name if item.lemma else 'N/A'}
 
 class Stems(DataTable):
     def __init__(self, req, model, **kw):
