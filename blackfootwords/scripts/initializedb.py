@@ -32,7 +32,7 @@ def main(args):
 
     )
 
-
+    # not used
     contrib = data.add(
         common.Contribution,
         None,
@@ -41,6 +41,7 @@ def main(args):
         description=args.cldf.properties.get('dc:bibliographicCitation'),
     )
 
+    # dialects
     for lang in args.cldf.iter_rows('LanguageTable', 'id', 'glottocode', 'name', 'latitude', 'longitude'):
         data.add(
             models.Variety,
@@ -52,12 +53,13 @@ def main(args):
             glottocode=lang['glottocode'],
         )
 
+    # sources
     for rec in bibtex.Database.from_file(args.cldf.bibpath, lowercase=True):
         data.add(common.Source, rec.id, _obj=bibtex2source(rec))
 
     refs = collections.defaultdict(list)
 
-
+    # translations
     for param in args.cldf.iter_rows('ParameterTable', 'id', 'name'):
         data.add(
             models.Concept,
@@ -65,8 +67,10 @@ def main(args):
             id=param['id'],
             name='{} [{}]'.format(param['name'], param['id']),
         )
-    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference', 'source'):
+    for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'languageReference', 'parameterReference'):
+    # for form in args.cldf.iter_rows('FormTable', 'id', 'form', 'parameterReference'):
         vsid = (form['languageReference'], form['parameterReference'])
+        # vsid = (form['parameterReference'])
         vs = data['ValueSet'].get(vsid)
         if not vs:
             vs = data.add(
@@ -75,19 +79,84 @@ def main(args):
                 id='-'.join(vsid),
                 language=data['Variety'][form['languageReference']],
                 parameter=data['Concept'][form['parameterReference']],
-                contribution=contrib,
             )
-        for ref in form.get('source', []):
-            sid, pages = Sources.parse(ref)
-            refs[(vsid, sid)].append(pages)
+
         data.add(
-            common.Value,
+            models.Lemma,
             form['id'],
             id=form['id'],
             name=form['form'],
+            categories='/'.join(form['LabLemmaCategory']),
             valueset=vs,
+            polymorphic_type='lemma',
+        )
+
+    #words
+    for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference'):
+        # source_id = word['Source_ID']
+        # source = data['Source'].get(source_id)
+        language_id = word['languageReference']
+        language = data['Variety'].get(language_id)
+        parameter_id = word['parameterReference']
+        parameter = data['Concept'].get(parameter_id)
+
+        data.add(
+            models.Word,
+            word['id'],
+            id=word['id'],
+            name=word['form'],
+            # source=source,
+            language=language,
+            parameter=parameter,
         )
     
+    # stems
+    for stem in args.cldf.iter_rows('stems.csv', 'id', 'form', 'formReference', 'Word_ID'):
+        lemma_id = stem['formReference']
+        lemma = data['Lemma'].get(lemma_id)
+        word_id = stem['Word_ID']
+        word = data['Word'].get(word_id)
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for stem {stem['id']}")
+            continue
+        if not hasattr(lemma, 'valueset'):
+            print(f"Warning: Lemma {lemma_id} has no valueset for stem {stem['id']}")
+            continue
+        if not word:
+            print(f"Warning: Word with id {word_id} not found for stem {stem['id']}")
+            continue
+        data.add(
+            models.Stem,
+            stem['id'],
+            id=stem['id'],
+            name=stem['form'],
+            lemma=lemma,
+            word=word,
+            valueset=lemma.valueset,
+        )
+    
+    #morphemes
+    for morpheme in args.cldf.iter_rows('morphemes.csv', 'id', 'form', 'Lemma_ID', 'Stem_ID'):
+        lemma_id = morpheme['Lemma_ID']
+        lemma = data['Lemma'].get(lemma_id)
+        stem_id = morpheme['Stem_ID']
+        stem = data['Stem'].get(stem_id)
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for morpheme {morpheme['id']}")
+            continue
+        if not stem:
+            print(f"Warning: Stem with id {stem_id} not found for morpheme {morpheme['id']}")
+            continue
+        data.add(
+            models.Morpheme,
+            morpheme['id'],
+            id=morpheme['id'],
+            name=morpheme['form'],
+            valueset=lemma.valueset,
+            lemma=lemma,
+            stem=stem,
+        )
+
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):
     #     data.add(
     #         models.Words,

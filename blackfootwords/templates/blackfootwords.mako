@@ -3,10 +3,8 @@
 ##
 ## define app-level blocks:
 ##
-<%block name="header">
-    ##<a href="${request.route_url('dataset')}">
-    ##    <img src="${request.static_url('blackfootwords:static/header.gif')}"/>
-    ##</a>
+<%block name="brand">
+    <a class="brand" href="${request.route_url('dataset')}">Blackfoot Words</a>
 </%block>
 
 ${next.body()}

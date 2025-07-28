@@ -46,12 +46,41 @@ for k, v in bibrec.items():
             <div id="tab4" class="tab-pane"><pre>${bibrec.format('mods')}</pre></div>
         </div>
     </div>
-    % if hasattr(ctx, 'note') and ctx.note:
+
+    <%
+note = getattr(ctx, 'note', None)
+orthography = labcomments = None
+if note:
+    # Use your chosen separator, e.g., '||'
+    parts = note.split('||')
+    for part in parts:
+        part = part.strip()
+        if part.startswith('ORTHOGRAPHY:'):
+            orthography = part[len('ORTHOGRAPHY:'):].strip()
+        elif part.startswith('LAB COMMENTS:'):
+            labcomments = part[len('LAB COMMENTS:'):].strip()
+    %>
+
+    % if orthography:
         <div style="margin-bottom: 1.5em;">
             <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Orthography</h3>
-            <div style="padding: 0.7em 1em; background: #f0f4f8; border-radius: 6px; color: #333;">${ctx.note | n}</div>
+            <div style="padding: 0.7em 1em; background: #f0f4f8; border-radius: 6px; color: #333;">${orthography | n}</div>
         </div>
     % endif
+    % if labcomments:
+        <div style="margin-bottom: 1.5em;">
+            <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Lab Comments</h3>
+            <div style="padding: 0.7em 1em; background: #f0f4f8; border-radius: 6px; color: #333;">${labcomments | n}</div>
+        </div>
+    % endif
+
+    % if note and not (orthography or labcomments):
+        <div style="margin-bottom: 1.5em;">
+            <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Notes</h3>
+            <div style="padding: 0.7em 1em; background: #f0f4f8; border-radius: 6px; color: #333;">${note | n}</div>
+        </div>
+    % endif
+
     % if hasattr(ctx, 'howpublished') and ctx.howpublished:
         <div style="margin-bottom: 1.5em;">
             <h3 style="margin-bottom: 0.3em; color: #2a4d69; font-size: 1.1em;">Provenance</h3>
