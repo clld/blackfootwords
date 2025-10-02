@@ -25,9 +25,9 @@ class ParameterCol(LinkCol):
         return {'label': item.valueset.parameter.name}
 
 class Lemmas(Values):
-    # def base_query(self, query):
-    #     # Only include Lemmas, not Stems
-    #     return query.filter(models.Lemma.polymorphic_type == 'lemma')
+    def base_query(self, query):
+        # Only include Lemmas, not other common.Value subclasses
+        return query.filter(models.Lemma.polymorphic_type == 'lemma')
     def col_defs(self):
         return [
             # LemmaFormCol(self, 'form', model_col=models.Lemma.name),
