@@ -7,3 +7,5 @@ from blackfootwords import models
 <%block name="title">${_('Language')} ${ctx.name}</%block>
 
 <h2>${_('Dialect ')}<span style="color: #014d4e">${ctx.name}</span></h2>
+
+

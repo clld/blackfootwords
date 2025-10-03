@@ -11,4 +11,6 @@ from blackfootwords import models
     <dd>${h.link(request, ctx.lemma)}</dd>
     <dt>Contained in stem:</dt>
     <dd>${h.link(request, ctx.stem)}</dd>
+    <dt>Contained in word:</dt>
+    <dd>${h.link(request, ctx.stem.word)}</dd>
 </dl>
