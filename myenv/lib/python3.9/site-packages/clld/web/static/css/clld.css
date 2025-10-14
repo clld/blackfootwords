@@ -1,0 +1,259 @@
+/*
+ *
+ */
+html {
+    overflow-y: scroll;
+}
+
+div.navbar-inverse a.brand {
+    color: #FFFFFF;
+}
+
+#contextnavbar .nav li {
+  min-height: 26px !important;
+}
+
+#contextnavbar a {
+  height: 18px !important;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#contextnavbar .navbar-inner {
+  min-height: 26px !important;
+}
+
+h2 {font-size: 28px !important;}
+
+a.pdf { background: url('../images/pdf-icon.gif') no-repeat center left; padding-left: 18px; }
+
+.dt-toolbar {float: right; text-align: right;}
+
+#contextnav ul {margin-top: 10px; margin-bottom: 10px;}
+
+#sidebar {margin-top: 10px;}
+
+div.well h3 {margin-top: 0;}
+
+td.right{
+    text-align: right !important;
+}
+
+td.left{
+    text-align: left !important;
+}
+
+td.center{
+    text-align: center !important;
+}
+
+div.dataTables_length label {
+    float: left;
+    text-align: left;
+}
+
+div.dataTables_length select {
+    width: 75px;
+}
+
+div.dataTables_filter label {
+    float: right;
+}
+
+div.dataTables_info {
+    padding-top: 8px;
+}
+
+div.dataTables_paginate {
+    float: right;
+    margin: 0;
+}
+
+table {
+    margin-bottom: 6px !important;
+    clear: both;
+}
+
+.dropdown-menu {z-index: 1100 !important;}
+
+div.olMap img {
+  max-width: none !important;
+}
+
+#map-container .accordion-inner {
+    padding: 0;
+}
+
+#map-container .dropdown-menu {
+    width: 250px;
+}
+
+#map-container .nav-pills {
+    margin-bottom: 0;
+}
+
+#map-container ul, #map-container ol {
+    margin-bottom: 0;
+}
+
+#map {
+    position: relative;
+    height: 400px;
+}
+
+.leaflet-control-zoom-fullscreen { background-image: url(../images/icon-fullscreen.png); }
+.leaflet-container:-webkit-full-screen { width: 100% !important; height: 100% !important; }
+
+.dt-full-cell {
+    width: 100%;
+    margin-top: -4px !important;
+    padding-top: 4px;
+    margin-bottom: -4px !important;
+    padding-bottom: 4px;
+    margin-left: -5px !important;
+    padding-left: 5px;
+    margin-right: -5px !important;
+    padding-right: 5px;
+}
+
+.right .dropdown-menu {
+    text-align: left !important;
+    min-width: 100px !important;
+}
+
+/*
+ * CSS Treeview
+ *
+ * see http://acidmartin.wordpress.com/2011/09/26/css3-treevew-no-javascript/ for details
+ */
+.treeview ul {list-style-type: none;}
+.treeview label {padding-left: 15px;}
+.treeview li {padding-left: 15px;}
+
+.treeview input + label + ul {
+    display: none;
+}
+
+.treeview input:checked + label + ul {
+    display: block;
+}
+
+.treeview input {
+    position: absolute;
+    opacity: 0;
+}
+
+/*
+ * sentences
+ */
+/* specifically for verbs layouts */
+/* line 4, ../../app/assets/stylesheets/examples.scss */
+span.sc {
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+
+td.object-language, div.object-language, td.original-script, div.original-script {
+    font-style: italic;
+}
+
+.translation:before { content: "\2018"; }
+.translation:after { content: "\2019"; }
+th.translation:before {content: "";}
+th.translation:after {content: "";}
+
+.hint--bottom {
+    border-bottom: 1px dotted #333333;
+}
+
+/* line 11, ../../app/assets/stylesheets/examples.scss */
+.sentences-container {
+  display: table;
+}
+
+/* line 14, ../../app/assets/stylesheets/examples.scss */
+div.sentence {
+  display: table-row;
+}
+/* line 16, ../../app/assets/stylesheets/examples.scss */
+.sentence .body {
+  display: table-cell;
+}
+/* line 20, ../../app/assets/stylesheets/examples.scss */
+.sentence + div .body {
+  padding-top: 1em;
+}
+/* line 24, ../../app/assets/stylesheets/examples.scss */
+.sentence .number {
+  display: table-cell;
+  padding-right: 12px;
+}
+/* line 30, ../../app/assets/stylesheets/examples.scss */
+.sentence.in-table .number {
+  padding-right: 6px;
+}
+/* line 34, ../../app/assets/stylesheets/examples.scss */
+.sentence.in-table + div .body {
+  padding-top: 0.5em;
+}
+/* line 41, ../../app/assets/stylesheets/examples.scss */
+.sentence .gloss-unit {
+  display: inline-block;
+  margin-bottom: 0.5em;
+}
+/* line 44, ../../app/assets/stylesheets/examples.scss */
+.sentence .gloss-unit:not(:last-child) {
+  margin-right: 0.5em;
+}
+/* line 47, ../../app/assets/stylesheets/examples.scss */
+td.gloss, div.gloss {
+  font-size: 90%;
+}
+/* line 49, ../../app/assets/stylesheets/examples.scss */
+.gloss .sc {
+  font-size: 120%;
+  line-height: 1.1em;
+}
+/* line 55, ../../app/assets/stylesheets/examples.scss */
+.sentence .gloss-box + .translation {
+  margin-top: -0.5em;
+}
+
+div.popover {width: 500px;}
+div.popover-content {
+        height: 250px;
+        overflow-y: scroll;
+        overflow-x: hidden;}
+
+img.gbs-thumbnail {border: 1px solid black; padding: 1px;}
+
+.Dataset {font-style: italic;}
+
+a.headerlink {
+    border: medium none;
+    color: #CCCCCC;
+    font-size: 1em;
+    margin-left: 6px;
+    padding: 0 4px;
+    text-decoration: none;
+}
+
+a.headerlink {
+    visibility: hidden;
+}
+
+a.headerlink:hover {
+    border: medium none;
+    color: #C60F0F;
+    text-decoration: none;
+}
+
+h1:hover > a.headerlink, h2:hover > a.headerlink, h3:hover > a.headerlink, h4:hover > a.headerlink, h5:hover > a.headerlink, h6:hover > a.headerlink, dt:hover > a.headerlink {
+    visibility: visible;
+}
+
+.table-nonfluid {
+   width: auto !important;
+}
+
+.dataTables_wrapper .span4 {margin-left: 0 !important;}

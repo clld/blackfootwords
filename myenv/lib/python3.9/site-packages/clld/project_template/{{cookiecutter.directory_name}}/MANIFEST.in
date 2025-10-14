@@ -1,0 +1,2 @@
+graft {{cookiecutter.directory_name}}
+global-exclude *.py[co]
