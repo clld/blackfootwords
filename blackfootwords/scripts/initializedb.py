@@ -7,6 +7,7 @@ from clld.cliutil import Data, bibtex2source
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.lib import bibtex
+from clldutils.misc import slug
 
 from pycldf import Sources
 
@@ -16,30 +17,64 @@ from blackfootwords import models
 
 def main(args):
     data = Data()
-    data.add(
-        common.Dataset,
-        blackfootwords.__name__,
-        id=blackfootwords.__name__,
-        domain='',
 
-        publisher_name = "",
-        publisher_place = "",
-        publisher_url = "",
+    dataset = common.Dataset(
+        id=blackfootwords.__name__,
+        domain='www.blackfootwords.com',
+        name="Blackfoot Words: A lexical database of Blackfoot legacy sources",
+        publisher_name="Language Resources and Evaluation",
+        publisher_place="",
+        publisher_url="https://www.blackfootwords.com/",
         license = "http://creativecommons.org/licenses/by/4.0/",
         jsondata = {
             'license_icon': 'cc-by.png',
             'license_name': 'Creative Commons Attribution 4.0 International License'},
-
     )
+    DBSession.add(dataset)
+    # data.add(
+    #     common.Dataset,
+    #     blackfootwords.__name__,
+    #     id=blackfootwords.__name__,
+    #     domain='',
 
-    # not used
-    contrib = data.add(
-        common.Contribution,
-        None,
-        id='cldf',
-        name=args.cldf.properties.get('dc:title'),
-        description=args.cldf.properties.get('dc:bibliographicCitation'),
+    #     publisher_name = "",
+    #     publisher_place = "",
+    #     publisher_url = "",
+    #     license = "http://creativecommons.org/licenses/by/4.0/",
+    #     jsondata = {
+    #         'license_icon': 'cc-by.png',
+    #         'license_name': 'Creative Commons Attribution 4.0 International License'},
+
+    # )
+    contrib = common.Contribution(
+        id='cldf', name=dataset.name
     )
+    # contrib = data.add(
+    #     common.Contribution,
+    #     None,
+    #     id='cldf',
+    #     name=args.cldf.properties.get('dc:title'),
+    #     description=args.cldf.properties.get('dc:bibliographicCitation'),
+    # )
+    for i, spec in enumerate([
+        ('Natalie Weber', True),
+        ('Tyler Brown', True),
+        ('Joshua Celli', True),
+        ('McKenzie Denham', True),
+        ('Hailey Dykstra', True),
+        ('Nico Kidd', True),
+        ('Rodrigo Hernandez-Merlin', True),
+        ('Evan Hochstein', True),
+        ('Pinyu Hwang', True),
+        ('Diana Kulmizev', True),
+        ('Hannah Morrison', True),
+        ('Matty Norris', True),
+        ('Lena Venkatraman', True),
+    ]):
+        name, primary = spec
+        c = common.Contributor(id=slug(name), name=name)
+        dataset.editors.append(common.Editor(contributor=c, ord=i, primary=primary))
+
 
     # dialects
     for lang in args.cldf.iter_rows('LanguageTable', 'id', 'glottocode', 'name', 'latitude', 'longitude'):
