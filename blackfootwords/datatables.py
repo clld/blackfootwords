@@ -32,14 +32,14 @@ class ParameterCol(LinkCol):
         return {'label': item.valueset.parameter.name}
 
 class Lemmas(Values):
-    # def base_query(self, query):
-    #     # Only include Lemmas, not Stems
-    #     return query.filter(models.Lemma.polymorphic_type == 'lemma')
+    def base_query(self, query):
+        # Only include Lemmas, not other common.Value subclasses
+        return query.filter(models.Lemma.polymorphic_type == 'lemma')
     def col_defs(self):
         return [
             # LemmaFormCol(self, 'form', model_col=models.Lemma.name),
             LinkCol(self, 'lemma'),
-            ParameterCol(self, 'parameter', model_col=models.Concept.name, get_object=lambda i: i.valueset.parameter),
+            ParameterCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.valueset.parameter),
             Col(self, 'categories', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
         ]
     
@@ -129,7 +129,7 @@ class Words(DataTable):
         print("Words datatable is being used")
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
-            WordTranslationCol(self, 'parameter', model_col=models.Concept.name, get_object=lambda i: i.parameter),
+            WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
             WordLanguageCol(self, 'language', model_col=models.Variety.name)
         ]
 

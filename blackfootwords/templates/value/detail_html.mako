@@ -18,9 +18,9 @@ from blackfootwords import models
     <dd>${v}</dd>
     % endfor
     
-    <dt>Stems:</dt>
-    ${request.get_datatable('stems', models.Stem, lemma=ctx).render()}
+    ##<dt>Stems:</dt>
+    ##${request.get_datatable('stems', models.Stem, lemma=ctx).render()}
 
-    <dt>Morphemes:</dt>
-    ${request.get_datatable('morphemes', models.Morpheme, lemma=ctx).render()}
+    ##<dt>Morphemes:</dt>
+    ##${request.get_datatable('morphemes', models.Morpheme, lemma=ctx).render()}
 </dl>
