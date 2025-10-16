@@ -193,10 +193,9 @@ class Sources(DataTable):
 
     def col_defs(self):
         return [
-            LinkCol(self, 'name'),
-            Col(self, 'description', sTitle='Title', format=lambda i: HTML.span(i.description)),
-            Col(self, 'year'),
             Col(self, 'author'),
+            Col(self, 'year'),
+            Col(self, 'description', sTitle='Title', format=lambda i: link(self.req, i, label=i.description, url_only=False)),
             TypeCol(self, 'bibtex_type'),
             CiteRowLinkCol(self, 'cite', sTitle="Citation"),
         ]
