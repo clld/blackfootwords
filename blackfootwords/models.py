@@ -34,6 +34,7 @@ class Variety(CustomModelMixin, common.Language):
 class Lemma(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     categories = Column(Unicode)
+    comments = Column(Unicode)
     __mapper_args__ = {'polymorphic_identity': 'lemma'}
 
 @implementer(IStem)

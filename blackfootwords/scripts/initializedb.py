@@ -122,6 +122,7 @@ def main(args):
             id=form['id'],
             name=form['form'],
             categories='/'.join(form['LabLemmaCategory']),
+            comments=form['LabLemmaComments'],
             valueset=vs,
             polymorphic_type='lemma',
         )

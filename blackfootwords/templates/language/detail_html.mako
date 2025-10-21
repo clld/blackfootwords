@@ -8,4 +8,4 @@ from blackfootwords import models
 
 <h2>${_('Dialect ')}<span style="color: #014d4e">${ctx.name}</span></h2>
 
-
+${request.get_datatable('words', models.Word, language=ctx.name).render()}
