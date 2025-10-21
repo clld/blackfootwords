@@ -1,0 +1,57 @@
+Metadata-Version: 2.4
+Name: simplepybtex
+Version: 0.1.0
+Summary: Read BibTeX
+Home-page: https://github.com/cldf/simplepybtex
+Author: Robert Forkel
+License: Apache 2
+Keywords: bibtex
+Platform: any
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: License :: OSI Approved :: BSD License
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: tox; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: wheel>=0.36; extra == "dev"
+Requires-Dist: twine; extra == "dev"
+Requires-Dist: build; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest>=5; extra == "test"
+Requires-Dist: pytest-mock; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Requires-Dist: coverage>=4.2; extra == "test"
+Dynamic: license-file
+
+# simplepybtex
+
+WARNING: While this package copies some of the code and functionality of the `pybtex` package,
+it is by no means a full drop-in replacement. It was created because `pybtex` appears to be no
+longer maintained and the imminent removal of `pkg_resources` - which is a dependency of current
+`pybtex` - would render `pybtex` un-installable (see 
+https://bitbucket.org/pybtex-devs/pybtex/issues/169/replace-pkg_resources-with ). 
+We (the maintainers of `simplepybtex`) are unable, though, to maintain a package with the full 
+scope of `pybtex` - in particular because we only use a fraction of this functionality in our 
+packages. Thus, `simplepybtex` rips the functionality we rely on (basically, parsing BibTeX) out 
+of `pybtex` and provides it in a package that will be installable beyond Python 3.12.
+
+Thus, if you are looking for a replacement for `pybtex`, `simplepybtex` might work. But if you are
+interested in a "classic" open-source project, with an interest in feature requests and a bright
+future, you might want to look somewhere else. `simplepybtex` just keeps our software running for
+the time being, until we know what the "proper" way to replace `pybtex` will be.

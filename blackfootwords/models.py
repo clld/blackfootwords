@@ -63,6 +63,9 @@ class Word(CustomModelMixin, common.Unit):
     # source_pk = Column(Integer, ForeignKey('source.pk'))
     # source = relationship('Source', backref='sources', foreign_keys=[source_pk])
 
+# fuck bruh i need to make my own model
+
+
 @implementer(interfaces.IParameter)
 class Concept(CustomModelMixin, common.Parameter):
     pk = Column(Integer, ForeignKey('parameter.pk'), primary_key=True)

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
-from clld.web.datatables.base import LinkCol, Col, LinkToMapCol
+from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, DetailsRowLinkCol
+from clld.db.models.common import Language, LanguageSource, Source
 from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
 from blackfootwords import models
@@ -8,6 +9,12 @@ from clld.web.datatables.base import DataTable
 from clld.db.models.common import (
     Language
 )
+from clld.lib.bibtex import EntryType
+from clld.web.util.htmllib import HTML
+from clld.web.util.helpers import (
+    link, button, icon, JS_CLLD, external_link, linked_references, JSDataTable,
+)
+
 
 class LemmaCol(LinkCol):
     def get_obj(self, item):
@@ -130,6 +137,7 @@ class Words(DataTable):
             return query.filter(models.Word.language_pk == self.language.pk)
 
     def col_defs(self):
+        print("Words datatable is being used")
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
             WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
@@ -143,6 +151,68 @@ class Languages(DataTable):
             LinkCol(self, 'name')
         ]
 
+class CiteRowLinkCol(Col):
+
+    __kw__ = {
+        'bSearchable': False,
+        'bSortable': False,
+        'sClass': 'center',
+        'sType': 'html',
+        'sTitle': 'Cite',
+        'button_text': 'Cite',
+    }
+
+    def format(self, item):
+        return button(
+            self.button_text,
+            href=self.dt.req.resource_url(self.get_obj(item), ext='snippet.html'),
+            title="show details",
+            class_="btn-info details",
+            tag=HTML.button)
+
+class TypeCol(Col):
+
+    """Render the BibTeX type of a Source item."""
+
+    def __init__(self, dt, name, *args, **kw):
+        kw['sTitle'] = 'BibTeX type'
+        kw['choices'] = [(t.value, t.description) for t in EntryType]
+        super(TypeCol, self).__init__(dt, name, *args, **kw)
+
+    def format(self, item):
+        return getattr(item.bibtex_type, 'description', '')
+
+    def order(self):
+        return Source.bibtex_type
+
+    def search(self, qs):
+        return Source.bibtex_type == getattr(EntryType, qs)
+
+
+class Sources(DataTable):
+
+    """Default DataTable for Source objects."""
+
+    __constraints__ = [Language]
+    __toolbar_kw__ = {'dl_formats': {'bib': 'BibTeX'}}
+
+    def base_query(self, query):
+        if self.language:
+            query = query.join(LanguageSource)\
+                .filter(LanguageSource.language_pk == self.language.pk)
+        return query
+
+    def col_defs(self):
+        return [
+            LinkCol(self, 'name'),
+            Col(self, 'description', sTitle='Title', format=lambda i: HTML.span(i.description)),
+            Col(self, 'year'),
+            Col(self, 'author'),
+            TypeCol(self, 'bibtex_type'),
+            CiteRowLinkCol(self, 'cite', sTitle="Citation"),
+        ]
+
+
 def includeme(config):
     """register custom datatables"""
     config.register_datatable('values', Lemmas)
@@ -150,3 +220,4 @@ def includeme(config):
     config.register_datatable('morphemes', Morphemes) 
     config.register_datatable('words', Words)
     config.register_datatable('languages', Languages)
+    config.register_datatable('sources', Sources)

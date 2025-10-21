@@ -1,0 +1,7 @@
+[console_scripts]
+cldf = pycldf.__main__:main
+
+[pycldf_dataset_resolver]
+generic_url = pycldf.ext.discovery:GenericUrlResolver
+github = pycldf.ext.discovery:GitHubResolver
+local = pycldf.ext.discovery:LocalResolver
