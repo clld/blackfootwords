@@ -40,7 +40,7 @@ class Lemmas(Values):
             # LemmaFormCol(self, 'form', model_col=models.Lemma.name),
             LinkCol(self, 'lemma'),
             ParameterCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.valueset.parameter),
-            Col(self, 'categories', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
+            Col(self, 'categories', sTitle='Cateogry', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
         ]
     
 ## morphemes table ##
@@ -66,9 +66,9 @@ class Morphemes(DataTable):
         return query
     def col_defs(self):
         return [
-            MorphemeFormCol(self, 'form', model_col=models.Morpheme.name),
+            MorphemeFormCol(self, 'form', sTitle='Morpheme', model_col=models.Morpheme.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
-            MorphemeStemCol(self, 'stem', model_col=models.Stem.name),
+            MorphemeStemCol(self, 'stem', sTitle='Contained in Stem', model_col=models.Stem.name),
         ]
 
 ## stems table ##
@@ -99,9 +99,9 @@ class Stems(DataTable):
     
     def col_defs(self):
         return [
-            StemFormCol(self, 'form', model_col=models.Stem.name),
+            StemFormCol(self, 'form', sTitle='Stem', model_col=models.Stem.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
-            StemWordCol(self, 'word', model_col=models.Word.name)
+            StemWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name)
         ]
 
 
@@ -130,7 +130,7 @@ class Words(DataTable):
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
             WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
-            WordLanguageCol(self, 'language', model_col=models.Variety.name)
+            WordLanguageCol(self, 'language', sTitle='Dialect', model_col=models.Variety.name)
         ]
 
 ## languages ##
@@ -200,6 +200,16 @@ class Sources(DataTable):
             CiteRowLinkCol(self, 'cite', sTitle="Citation"),
         ]
 
+class Parameters(DataTable):
+
+    """Default DataTable for Parameter objects."""
+
+    def col_defs(self):
+        return [
+            DetailsRowLinkCol(self, 'd'),
+            LinkCol(self, 'name', sTitle='Translation'),
+        ]
+
 
 def includeme(config):
     """register custom datatables"""
@@ -209,3 +219,4 @@ def includeme(config):
     config.register_datatable('words', Words)
     config.register_datatable('languages', Languages)
     config.register_datatable('sources', Sources)
+    config.register_datatable('parameters', Parameters)
