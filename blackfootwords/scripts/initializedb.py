@@ -20,7 +20,7 @@ def main(args):
 
     dataset = common.Dataset(
         id=blackfootwords.__name__,
-        domain='www.blackfootwords.com',
+        domain='doi.org/10.1007/s10579-022-09631-2',
         name="Blackfoot Words: A lexical database of Blackfoot legacy sources",
         publisher_name="Language Resources and Evaluation",
         publisher_place="",
@@ -122,6 +122,7 @@ def main(args):
             id=form['id'],
             name=form['form'],
             categories='/'.join(form['LabLemmaCategory']),
+            comments=form['LabLemmaComments'],
             valueset=vs,
             polymorphic_type='lemma',
         )

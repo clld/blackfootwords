@@ -6,6 +6,9 @@ from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
 from blackfootwords import models
 from clld.web.datatables.base import DataTable
+from clld.db.models.common import (
+    Language
+)
 from clld.lib.bibtex import EntryType
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import (
@@ -41,6 +44,7 @@ class Lemmas(Values):
             LinkCol(self, 'lemma'),
             ParameterCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.valueset.parameter),
             Col(self, 'categories', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
+            Col(self, 'comments', model_col=models.Lemma.comments),
         ]
     
 ## morphemes table ##
@@ -83,18 +87,19 @@ class StemWordCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.word.name}
 class Stems(DataTable):
+    __constraints__ = [models.Lemma]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.lemma_filter = kw.get('lemma')
+        self.lemma = kw.get('lemma')
     
     def base_query(self, query):
-        """Ensure the lemma relationship is loaded"""
+        """Ensure the lemma relationship is loaded and handle lemma filtering"""
+        # Use joinedload to avoid the ambiguous join issue
         query = query.options(joinedload(models.Stem.lemma))
         
-        # Handle lemma filtering if provided
-        if self.lemma_filter:
-            query = query.filter(models.Stem.lemma == self.lemma_filter)
-        
+        # Handle lemma filtering if provided (constraint-based filtering)
+        if self.lemma:
+            query = query.filter(models.Stem.lemma_pk == self.lemma.pk)
         return query
     
     def col_defs(self):
@@ -125,6 +130,12 @@ class WordLanguageCol(LinkCol):
         return {'label': item.language.name}
 
 class Words(DataTable):
+    __constraints__ = [Language]
+    def base_query(self, query):
+        query = query.options(joinedload(Language))
+        if self.language:
+            return query.filter(models.Word.language_pk == self.language.pk)
+
     def col_defs(self):
         print("Words datatable is being used")
         return [

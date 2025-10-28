@@ -25,9 +25,9 @@
     What's inside?
 </p>
 <p>
-    Version 1.1 of the database includes words from nine different sources. The earliest source is from 1743 and the most recent source is from 1969, which means that all of the words are Old Blackfoot. PDFs of the sources can be downloaded from the Sources page.
+    Version 1.2 of the database includes words from nine different sources. The earliest source is from 1743 and the most recent source is from 1969, which means that all of the words are Old Blackfoot. PDFs of the sources can be downloaded from the Sources page of the Blackfoot Words website.
     <br><br>
-    In Version 1.1 many (but not all) of the words are analyzed into stems and even morphemes. The full analysis will be published soon as Version 1.2.
+    Version 1.2 includes 4,557 inflected words, analyzed into 6,276 stems and 6,202 morphemes, representing 3,159 unique lemmas. All records are annotated with lexical category, hierarchical relationships, and other metadata.
 </p>
 <br>
 <p class="lead">
