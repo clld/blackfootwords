@@ -135,6 +135,7 @@ class Words(DataTable):
         query = query.options(joinedload(Language))
         if self.language:
             return query.filter(models.Word.language_pk == self.language.pk)
+        return query
 
     def col_defs(self):
         print("Words datatable is being used")
