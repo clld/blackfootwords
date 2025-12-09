@@ -33,6 +33,23 @@ class ParameterCol(LinkCol):
         return item.valueset
     def get_attrs(self, item):
         return {'label': item.valueset.parameter.name}
+# class LemmaCommentsCol(Col):
+#     __kw__ = {
+#         'bSearchable': False,
+#         'bSortable': False,
+#         'sClass': 'center',
+#         'sType': 'html',
+#         'sTitle': 'Comments',
+#         'button_text': 'Comments',
+#     }
+
+#     def format(self, item):
+#         return button(
+#             self.button_text,
+#             href=self.dt.req.resource_url(self.get_obj(item), ext='snippet.html'),
+#             title="show details",
+#             class_="btn-info details",
+#             tag=HTML.button)
 
 class Lemmas(Values):
     def base_query(self, query):
@@ -132,9 +149,10 @@ class WordLanguageCol(LinkCol):
 class Words(DataTable):
     __constraints__ = [Language]
     def base_query(self, query):
-        query = query.options(joinedload(Language))
+        query = query.options(joinedload(models.Word.language))
         if self.language:
             return query.filter(models.Word.language_pk == self.language.pk)
+        return query
 
     def col_defs(self):
         print("Words datatable is being used")
