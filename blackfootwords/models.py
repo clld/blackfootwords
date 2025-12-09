@@ -54,12 +54,25 @@ class Morpheme(CustomModelMixin, common.Value):
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='morphemes', foreign_keys=[lemma_pk])
     __mapper_args__ = {'polymorphic_identity': 'morpheme'}
-
+  
 @implementer(interfaces.IUnit)
 class Word(CustomModelMixin, common.Unit):
     pk = Column(Integer, ForeignKey('unit.pk'), primary_key=True)
     parameter_pk = Column(Integer, ForeignKey('parameter.pk'))
     parameter = relationship('Parameter', backref='words', foreign_keys=[parameter_pk])
+    original_category = Column(Unicode)
+    original_ur = Column(Unicode)
+    category = Column(Unicode)
+    original_partial_word = Column(Unicode)
+    original_partial_word_translation = Column(Unicode)
+    original_partial_word_category = Column(Unicode)
+    original_partial_word_ur = Column(Unicode)
+    original_phrase = Column(Unicode)
+    original_phrase_translation = Column(Unicode)
+    original_phrase_ur = Column(Unicode)
+    cited_from = Column(Unicode)
+    original_comments = Column(Unicode)
+    comments = Column(Unicode)
     # source_pk = Column(Integer, ForeignKey('source.pk'))
     # source = relationship('Source', backref='sources', foreign_keys=[source_pk])
 

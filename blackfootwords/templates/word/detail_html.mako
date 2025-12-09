@@ -11,8 +11,54 @@ from blackfootwords import models
     <dd>${h.link(request, ctx.parameter)}</dd>
     <dt>Dialect:</dt>
     <dd>${h.link(request, ctx.language)}</dd>
-    % for k, v in ctx.datadict().items():
-    <dt>${k}</dt>
-    <dd>${v}</dd>
-    % endfor
+
+    <dt>Original category:</dt>
+    <dd>${ctx.original_category or 'N/A'}</dd>
+    <dt>Original UR:</dt>
+    <dd>${ctx.original_ur or 'N/A'}</dd>
+    <dt>Lab word Category:</dt>
+    <dd>${ctx.category or 'N/A'}</dd>
+
+    <dt>Original partial word:</dt>
+    <dd>${ctx.original_partial_word or 'N/A'}</dd>
+    <dt>Original partial word translation:</dt>
+    <dd>${ctx.original_partial_word_translation or 'N/A'}</dd>
+    <dt>Original partial word category:</dt>
+    <dd>${ctx.original_partial_word_category or 'N/A'}</dd>
+    <dt>Original partial word UR:</dt>
+    <dd>${ctx.original_partial_word_ur or 'N/A'}</dd>
+
+    <dt>Original phrase:</dt>
+    <dd>${ctx.original_phrase or 'N/A'}</dd>
+    <dt>Original phrase translation:</dt>
+    <dd>${ctx.original_phrase_translation or 'N/A'}</dd>
+    <dt>Original phrase UR:</dt>
+    <dd>${ctx.original_phrase_ur or 'N/A'}</dd>
+
+    <dt>Cited from:</dt>
+    <dd>${ctx.cited_from or 'N/A'}</dd>
+    <dt>Original comments:</dt>
+    <dd>${ctx.original_comments or 'N/A'}</dd>
+    <dt>Lab comments:</dt>
+    <dd>${ctx.comments or 'N/A'}</dd>
+
+    ##<pre>
+    ##pk=${ctx.pk}
+    ##len(ctx.data)=${len(list(ctx.data))}
+    ##datadict=${getattr(ctx, 'datadict', lambda: {})()}
+    ##</pre>
+
+
+
+    <% extras = getattr(ctx, 'datadict', lambda: {})() %>
+    % if extras:
+        <h3>Additional information</h3>
+        <table class="table table-condensed">
+            % for k, v in sorted(extras.items()):
+                % if v:
+                    <tr><th>${k}</th><td>${v}</td></tr>
+                % endif
+            % endfor
+        </table>
+    % endif
 </dl>
