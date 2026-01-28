@@ -31,21 +31,7 @@ def main(args):
             'license_name': 'Creative Commons Attribution 4.0 International License'},
     )
     DBSession.add(dataset)
-    # data.add(
-    #     common.Dataset,
-    #     blackfootwords.__name__,
-    #     id=blackfootwords.__name__,
-    #     domain='',
-
-    #     publisher_name = "",
-    #     publisher_place = "",
-    #     publisher_url = "",
-    #     license = "http://creativecommons.org/licenses/by/4.0/",
-    #     jsondata = {
-    #         'license_icon': 'cc-by.png',
-    #         'license_name': 'Creative Commons Attribution 4.0 International License'},
-
-    # )
+    
     contrib = common.Contribution(
         id='cldf', name=dataset.name
     )
@@ -128,15 +114,15 @@ def main(args):
         )
 
     #words
-    for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference'):
-        # source_id = word['Source_ID']
+    for word in args.cldf.iter_rows('words.csv', 'id', 'form', 'languageReference', 'parameterReference', 'LabWordCategory', 'OriginalPhrase', 'OriginalPhraseTranslation', 'LabComments'):
+        # source_id = word['Source_ID'] 
         # source = data['Source'].get(source_id)
         language_id = word['languageReference']
         language = data['Variety'].get(language_id)
         parameter_id = word['parameterReference']
         parameter = data['Concept'].get(parameter_id)
-
-        data.add(
+        
+        word_obj = data.add(
             models.Word,
             word['id'],
             id=word['id'],
@@ -144,7 +130,21 @@ def main(args):
             # source=source,
             language=language,
             parameter=parameter,
+            original_category = word['OriginalCategory'],
+            original_ur = word['OriginalUR'],
+            category = word['LabWordCategory'],
+            original_partial_word = word['OriginalPartialWord'],
+            original_partial_word_translation = word['OriginalPartialWordTranslation'],
+            original_partial_word_category = word['OriginalPartialWordCategory'],
+            original_partial_word_ur = word['OriginalPartialWordUR'],
+            original_phrase = word['OriginalPhrase'],
+            original_phrase_translation = word['OriginalPhraseTranslation'],
+            original_phrase_ur = word['OriginalPhraseUR'],
+            cited_from = word['CitedFrom'],
+            original_comments = word['OriginalComments'],
+            comments = word['LabComments'],
         )
+        
     
     # stems
     for stem in args.cldf.iter_rows('stems.csv', 'id', 'form', 'formReference', 'Word_ID'):
@@ -208,6 +208,14 @@ def main(args):
             source=data['Source'][sid],
             description='; '.join(nfilter(pages))
         ))
+
+
+    # w = DBSession.query(models.Word).first()
+    # print("Word pk:", w.pk)
+    # print("Unit_data for this word:", list(DBSession.query(common.Unit_data)
+    #     .filter(common.Unit_data.object_pk == w.pk)))
+    # print("datadict:", w.datadict())
+
 
 
 

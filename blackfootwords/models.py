@@ -60,7 +60,7 @@ class Morpheme(CustomModelMixin, common.Value):
     lemma_pk = Column(Integer, ForeignKey('lemma.pk'))
     lemma = relationship('Lemma', backref='morphemes', foreign_keys=[lemma_pk])
     __mapper_args__ = {'polymorphic_identity': 'morpheme'}
-
+  
 @implementer(interfaces.IUnit)
 class Word(CustomModelMixin, common.Unit):
     pk = Column(Integer, ForeignKey('unit.pk'), primary_key=True)
