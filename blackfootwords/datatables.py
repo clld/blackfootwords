@@ -36,14 +36,14 @@ class ParameterCol(LinkCol):
 
 class Lemmas(Values):
     def base_query(self, query):
-        # Only include Lemmas, not other common.Value subclasses
+        query = super().base_query(query)
+        query = query.join(models.Lemma.valueset).join(models.Concept)
         return query.filter(models.Lemma.polymorphic_type == 'lemma')
     def col_defs(self):
         return [
-            # LemmaFormCol(self, 'form', model_col=models.Lemma.name),
-            LinkCol(self, 'lemma'),
+            LinkCol(self, 'lemma', model_col=models.Lemma.name, get_obj=lambda i: i),
             ParameterCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.valueset.parameter),
-            Col(self, 'categories', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
+            Col(self, 'categories', sTitle='Category', model_col=models.Lemma.categories, choices=get_distinct_values(models.Lemma.categories)),
             Col(self, 'comments', model_col=models.Lemma.comments),
         ]
     
@@ -64,15 +64,20 @@ class Morphemes(DataTable):
         self.lemma_filter = kw.get('lemma')
     def base_query(self, query):
         """Ensure the lemma relationship is loaded"""
-        query = query.options(joinedload(models.Morpheme.lemma))
+        query = query.join(models.Morpheme.lemma)
+        query = query.join(models.Morpheme.stem)
+        query = query.options(
+            joinedload(models.Morpheme.lemma),
+            joinedload(models.Morpheme.stem)
+        )
         if self.lemma_filter:
             query = query.filter(models.Morpheme.lemma == self.lemma_filter)
         return query
     def col_defs(self):
         return [
-            MorphemeFormCol(self, 'form', model_col=models.Morpheme.name),
+            MorphemeFormCol(self, 'form', sTitle='Morpheme', model_col=models.Morpheme.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
-            MorphemeStemCol(self, 'stem', model_col=models.Stem.name),
+            MorphemeStemCol(self, 'stem', sTitle='Contained in Stem', model_col=models.Stem.name),
         ]
 
 ## stems table ##
@@ -95,7 +100,13 @@ class Stems(DataTable):
     def base_query(self, query):
         """Ensure the lemma relationship is loaded and handle lemma filtering"""
         # Use joinedload to avoid the ambiguous join issue
-        query = query.options(joinedload(models.Stem.lemma))
+        query = query.join(models.Stem.lemma)
+        query = query.join(models.Stem.word)
+
+        query = query.options(
+            joinedload(models.Stem.lemma),
+            joinedload(models.Stem.word)
+        )
         
         # Handle lemma filtering if provided (constraint-based filtering)
         if self.lemma:
@@ -104,9 +115,9 @@ class Stems(DataTable):
     
     def col_defs(self):
         return [
-            StemFormCol(self, 'form', model_col=models.Stem.name),
+            StemFormCol(self, 'form', sTitle='Stem', model_col=models.Stem.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
-            StemWordCol(self, 'word', model_col=models.Word.name)
+            StemWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name)
         ]
 
 
@@ -130,18 +141,39 @@ class WordLanguageCol(LinkCol):
         return {'label': item.language.name}
 
 class Words(DataTable):
-    __constraints__ = [Language]
     def base_query(self, query):
-        query = query.options(joinedload(Language))
-        if self.language:
-            return query.filter(models.Word.language_pk == self.language.pk)
+        query = query.join(models.Word.language)  
+        query = query.join(models.Word.parameter)  
+        query = query.options(joinedload(models.Word.language))
+        return query
 
     def col_defs(self):
-        print("Words datatable is being used")
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
             WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
-            WordLanguageCol(self, 'language', model_col=models.Variety.name)
+            WordLanguageCol(self, 'dialect', model_col=models.Variety.name)  
+        ]
+
+
+class WordsByLanguage(DataTable):
+    __constraints__ = [models.Variety]
+
+    def __init__(self, req, model, **kw):
+        super().__init__(req, model, **kw)
+        self.variety_id = kw.get('variety')  # string from AJAX
+
+    def base_query(self, query):
+        query = query.join(models.Word.language)
+        if self.variety_id:
+            # filter by primary key or unique ID
+            query = query.filter(models.Word.language_pk == self.variety_id)
+        return query
+
+    def col_defs(self):
+        print("working")
+        return [
+            WordFormCol(self, 'form', model_col=models.Word.name),
+            WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
         ]
 
 ## languages ##
@@ -204,13 +236,13 @@ class Sources(DataTable):
 
     def col_defs(self):
         return [
-            LinkCol(self, 'name'),
-            Col(self, 'description', sTitle='Title', format=lambda i: HTML.span(i.description)),
-            Col(self, 'year'),
             Col(self, 'author'),
+            Col(self, 'year'),
+            Col(self, 'description', sTitle='Title', format=lambda i: link(self.req, i, label=i.description, url_only=False)),
             TypeCol(self, 'bibtex_type'),
             CiteRowLinkCol(self, 'cite', sTitle="Citation"),
         ]
+
 
 
 def includeme(config):
@@ -221,3 +253,4 @@ def includeme(config):
     config.register_datatable('words', Words)
     config.register_datatable('languages', Languages)
     config.register_datatable('sources', Sources)
+    config.register_datatable('words_by_language', WordsByLanguage)

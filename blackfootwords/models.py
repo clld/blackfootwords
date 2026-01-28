@@ -29,6 +29,12 @@ from blackfootwords.interfaces import IStem, IMorpheme
 class Variety(CustomModelMixin, common.Language):
     pk = Column(Integer, ForeignKey('language.pk'), primary_key=True)
     glottocode = Column(Unicode)
+    words = relationship(
+        'Word',
+        back_populates='language',  # uses the existing Word.language
+        viewonly=True,
+        overlaps='language'
+    )
 
 @implementer(interfaces.IValue)
 class Lemma(CustomModelMixin, common.Value):
@@ -59,12 +65,7 @@ class Morpheme(CustomModelMixin, common.Value):
 class Word(CustomModelMixin, common.Unit):
     pk = Column(Integer, ForeignKey('unit.pk'), primary_key=True)
     parameter_pk = Column(Integer, ForeignKey('parameter.pk'))
-    parameter = relationship('Parameter', backref='words', foreign_keys=[parameter_pk])
-    # source_pk = Column(Integer, ForeignKey('source.pk'))
-    # source = relationship('Source', backref='sources', foreign_keys=[source_pk])
-
-# fuck bruh i need to make my own model
-
+    parameter = relationship('Parameter', backref='words')
 
 @implementer(interfaces.IParameter)
 class Concept(CustomModelMixin, common.Parameter):
