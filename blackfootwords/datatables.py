@@ -144,7 +144,7 @@ class PartWordCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.word.name}
 class Parts(DataTable):
-    __constraints__ = [ models.Lemma ]
+    __constraints__ = [ models.Lemma, models.Word ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
     def base_query(self, query):
@@ -157,6 +157,8 @@ class Parts(DataTable):
         )
         if self.lemma:
             query = query.filter(models.Part.lemma_pk == self.lemma.pk)
+        if self.word:
+            query = query.filter(models.Part.word_pk == self.word.pk)
         return query
     def col_defs(self):
         return [

@@ -49,6 +49,9 @@ from blackfootwords import models
         <dd>${ctx.comments or 'N/A'}</dd>
     % endif
 
+    <dt>Parts of word:</dt>
+    ${request.get_datatable('parts', models.Part, word=ctx).render()}
+
     ##<pre>
     ##pk=${ctx.pk}
     ##len(ctx.data)=${len(list(ctx.data))}

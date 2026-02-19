@@ -68,6 +68,12 @@ class Part(CustomModelMixin, common.Value):
     lemma = relationship('Lemma', backref='parts', foreign_keys=[lemma_pk])
     word_pk = Column(Integer, ForeignKey('word.pk'))
     word = relationship('Word', backref='parts', foreign_keys=[word_pk])
+    # contained in?
+    # precedence = Column(Unicode)
+    lab_part_category = Column(Unicode)
+    lab_part_comments = Column(Unicode)
+
+
     __mapper_args__ = {'polymorphic_identity': 'part'}
   
 @implementer(interfaces.IUnit)

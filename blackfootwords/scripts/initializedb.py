@@ -210,6 +210,9 @@ def main(args):
 
         # prefix each part id to distinguish from stem and morpheme ids
         part_id = 'part-{}'.format(part['Part_ID'])
+        # LabPartCategory is multivalued in CLDF (separator ' '); pycldf returns a list.
+        lab_cat = part['LabPartCategory']
+        lab_part_category = '/'.join(lab_cat) if isinstance(lab_cat, list) else (lab_cat or None)
         data.add(
             models.Part,
             part_id,
@@ -218,6 +221,10 @@ def main(args):
             valueset=lemma.valueset,
             lemma=lemma,
             word=word,
+            # contained_in=part['ContainedIn'],
+            # precedence=part['Precedence'],
+            lab_part_category=lab_part_category,
+            lab_part_comments=part['LabPartComments'],
         )
 
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):

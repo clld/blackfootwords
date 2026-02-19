@@ -12,5 +12,13 @@ from blackfootwords import models
     <dt>Translation:</dt>
     <dd>${h.link(request, ctx.lemma.valueset.parameter)}</dd>
     <dt>Contained in word:</dt>
-    <dd>${h.link(request, ctx.word)}</dd>
+    <dd>${h.link(request, ctx.word)}</dd> 
+    % if ctx.lab_part_category:
+        <dt>Category:</dt>
+        <dd>${ctx.lab_part_category or 'N/A'}</dd>
+    % endif
+    % if ctx.lab_part_comments:
+        <dt>Comments:</dt>
+        <dd>${ctx.lab_part_comments or 'N/A'}</dd>
+    % endif
 </dl>
