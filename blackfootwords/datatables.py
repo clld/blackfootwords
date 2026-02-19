@@ -82,8 +82,8 @@ class Morphemes(DataTable):
         query = query.join(models.Morpheme.stem)
 
         query = query.options(
-            joinedload(models.Stem.lemma),
-            joinedload(models.Stem.word)
+            joinedload(models.Morpheme.lemma),
+            joinedload(models.Morpheme.stem)
         )
         if self.lemma:
             query = query.filter(models.Morpheme.lemma_pk == self.lemma.pk)
