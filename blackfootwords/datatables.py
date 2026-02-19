@@ -1,14 +1,11 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
 from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, DetailsRowLinkCol
-from clld.db.models.common import Language, LanguageSource, Source
+from clld.db.models.common import Value, Language, LanguageSource, Source
 from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
 from blackfootwords import models
 from clld.web.datatables.base import DataTable
-from clld.db.models.common import (
-    Language
-)
 from clld.lib.bibtex import EntryType
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import (
@@ -109,10 +106,9 @@ class StemWordCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.word.name}
 class Stems(DataTable):
-    __constraints__ = [models.Lemma]
+    __constraints__ = [ models.Lemma ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.lemma = kw.get('lemma')
     
     def base_query(self, query):
         """Ensure the lemma relationship is loaded and handle lemma filtering"""
@@ -124,8 +120,6 @@ class Stems(DataTable):
             joinedload(models.Stem.lemma),
             joinedload(models.Stem.word)
         )
-        
-        # Handle lemma filtering if provided (constraint-based filtering)
         if self.lemma:
             query = query.filter(models.Stem.lemma_pk == self.lemma.pk)
         return query
