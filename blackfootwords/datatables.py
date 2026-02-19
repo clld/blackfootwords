@@ -73,19 +73,20 @@ class MorphemeStemCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.stem.name}
 class Morphemes(DataTable):
+    __constraints__ = [ models.Lemma ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.lemma_filter = kw.get('lemma')
     def base_query(self, query):
         """Ensure the lemma relationship is loaded"""
         query = query.join(models.Morpheme.lemma)
         query = query.join(models.Morpheme.stem)
+
         query = query.options(
             joinedload(models.Morpheme.lemma),
             joinedload(models.Morpheme.stem)
         )
-        if self.lemma_filter:
-            query = query.filter(models.Morpheme.lemma == self.lemma_filter)
+        if self.lemma:
+            query = query.filter(models.Morpheme.lemma_pk == self.lemma.pk)
         return query
     def col_defs(self):
         return [
