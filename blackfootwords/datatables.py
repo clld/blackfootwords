@@ -109,16 +109,6 @@ class Stems(DataTable):
     __constraints__ = [ models.Lemma ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        # But also handle URL query parameters manually as fallback
-        # if not self.lemma and 'lemma' in req.params:
-        #     lemma_id = req.params.get('lemma')
-        #     if lemma_id:
-        #         self.lemma = models.Lemma.get(lemma_id, default=None)
-        # # Also support lemma_id parameter
-        # if not self.lemma and 'lemma_id' in req.params:
-        #     lemma_id = req.params.get('lemma_id')
-        #     if lemma_id:
-        #         self.lemma = models.Lemma.get(lemma_id, default=None)
     
     def base_query(self, query):
         """Ensure the lemma relationship is loaded and handle lemma filtering"""
@@ -130,21 +120,8 @@ class Stems(DataTable):
             joinedload(models.Stem.lemma),
             joinedload(models.Stem.word)
         )
-        
-        # Handle lemma filtering if provided (constraint-based filtering)
-        # self.lemma is set automatically by CLLD when __constraints__ includes models.Lemma
         if self.lemma:
             query = query.filter(models.Stem.lemma_pk == self.lemma.pk)
-        
-        # Debug: log query params and compiled SQL
-        print(f"[Stems] lemma={getattr(self, 'lemma', None)} | lemma.pk={getattr(getattr(self, 'lemma', None), 'pk', None)} | req.params={dict(self.req.params)}")
-        try:
-            # Get compiled SQL statement
-            compiled = query.statement.compile()
-            print(f"[Stems] SQL: {compiled}")
-        except (AttributeError, TypeError):
-            # Fallback: print query representation
-            print(f"[Stems] Query object: {query}")
         return query
     
     def col_defs(self):
