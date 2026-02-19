@@ -193,6 +193,33 @@ def main(args):
             stem=stem,
         )
 
+    # parts of words
+    for part in args.cldf.iter_rows('partsofwords.csv', 'Part_ID', 'LabPart', 'Lemma_ID', 'Word_ID',
+                                    'ContainedIn', 'Precedence', 'LabPartCategory', 'LabPartComments'):
+        lemma_id = part['Lemma_ID']
+        lemma = data['Lemma'].get(lemma_id)
+        word_id = part['Word_ID']
+        word = data['Word'].get(word_id)
+
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for part {part['Part_ID']}")
+            continue
+        if not word:
+            print(f"Warning: Word with id {word_id} not found for part {part['Part_ID']}")
+            continue
+
+        # prefix each part id to distinguish from stem and morpheme ids
+        part_id = 'part-{}'.format(part['Part_ID'])
+        data.add(
+            models.Part,
+            part_id,
+            id=part_id,
+            name=part['LabPart'],
+            valueset=lemma.valueset,
+            lemma=lemma,
+            word=word,
+        )
+
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):
     #     data.add(
     #         models.Words,
