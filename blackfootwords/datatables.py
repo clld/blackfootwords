@@ -132,6 +132,40 @@ class Stems(DataTable):
             StemWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name)
         ]
 
+## parts of words table ##
+class PartFormCol(LinkCol):
+    def get_obj(self, item):
+        return item
+    def get_attrs(self, item):
+        return {'label': item.name}
+class PartWordCol(LinkCol):
+    def get_obj(self, item):
+        return item.word
+    def get_attrs(self, item):
+        return {'label': item.word.name}
+class Parts(DataTable):
+    __constraints__ = [ models.Lemma, models.Word ]
+    def __init__(self, req, model, **kw):
+        super().__init__(req, model, **kw)
+    def base_query(self, query):
+        query = query.join(models.Part.lemma)
+        query = query.join(models.Part.word)
+
+        query = query.options(
+            joinedload(models.Part.lemma),
+            joinedload(models.Part.word)
+        )
+        if self.lemma:
+            query = query.filter(models.Part.lemma_pk == self.lemma.pk)
+        if self.word:
+            query = query.filter(models.Part.word_pk == self.word.pk)
+        return query
+    def col_defs(self):
+        return [
+            PartFormCol(self, 'form', sTitle='Part', model_col=models.Part.name),
+            LemmaCol(self, 'lemma', model_col=models.Lemma.name),
+            PartWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name),
+        ]
 
 ## words table ##
 class WordFormCol(LinkCol):
@@ -261,7 +295,8 @@ def includeme(config):
     """register custom datatables"""
     config.register_datatable('values', Lemmas)
     config.register_datatable('stems', Stems) 
-    config.register_datatable('morphemes', Morphemes) 
+    config.register_datatable('morphemes', Morphemes)
+    config.register_datatable('parts', Parts)
     config.register_datatable('words', Words)
     config.register_datatable('languages', Languages)
     config.register_datatable('sources', Sources)
