@@ -1,6 +1,7 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
 from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, DetailsRowLinkCol
+from clld.web.util.helpers import link
 from clld.db.models.common import Value, Language, LanguageSource, Source
 from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
@@ -191,6 +192,9 @@ class Words(DataTable):
         query = query.join(models.Word.language)  
         query = query.join(models.Word.parameter)  
         query = query.options(joinedload(models.Word.language))
+        language_id = self.req.params.get('language')
+        if language_id:
+            query = query.filter(models.Word.language_pk == language_id)
         return query
 
     def col_defs(self):
@@ -216,17 +220,27 @@ class WordsByLanguage(DataTable):
         return query
 
     def col_defs(self):
-        print("working")
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
             WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
         ]
 
 ## languages ##
+class LanguageToWordsCol(LinkCol):
+
+    def get_attrs(self, item):
+        words_url = self.dt.req.route_url('words')
+
+        return {
+            'label': item.name,
+            'href': f"{words_url}?language={item.pk}"
+        }
+
 class Languages(DataTable):
     def col_defs(self):
         return [
-            LinkCol(self, 'name')
+            #LinkCol(self, 'name')
+            LanguageToWordsCol(self, 'name')
         ]
 
 class CiteRowLinkCol(Col):
