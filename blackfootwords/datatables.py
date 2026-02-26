@@ -2,14 +2,11 @@ from sqlalchemy.orm import joinedload
 from clld.web import datatables
 from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, DetailsRowLinkCol
 from clld.web.util.helpers import link
-from clld.db.models.common import Language, LanguageSource, Source
+from clld.db.models.common import Value, Language, LanguageSource, Source
 from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
 from blackfootwords import models
 from clld.web.datatables.base import DataTable
-from clld.db.models.common import (
-    Language
-)
 from clld.lib.bibtex import EntryType
 from clld.web.util.htmllib import HTML
 from clld.web.util.helpers import (
@@ -77,19 +74,20 @@ class MorphemeStemCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.stem.name}
 class Morphemes(DataTable):
+    __constraints__ = [ models.Lemma ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.lemma_filter = kw.get('lemma')
     def base_query(self, query):
         """Ensure the lemma relationship is loaded"""
         query = query.join(models.Morpheme.lemma)
         query = query.join(models.Morpheme.stem)
+
         query = query.options(
             joinedload(models.Morpheme.lemma),
             joinedload(models.Morpheme.stem)
         )
-        if self.lemma_filter:
-            query = query.filter(models.Morpheme.lemma == self.lemma_filter)
+        if self.lemma:
+            query = query.filter(models.Morpheme.lemma_pk == self.lemma.pk)
         return query
     def col_defs(self):
         return [
@@ -110,10 +108,9 @@ class StemWordCol(LinkCol):
     def get_attrs(self, item):
         return {'label': item.word.name}
 class Stems(DataTable):
-    __constraints__ = [models.Lemma]
+    __constraints__ = [ models.Lemma ]
     def __init__(self, req, model, **kw):
         super().__init__(req, model, **kw)
-        self.lemma = kw.get('lemma')
     
     def base_query(self, query):
         """Ensure the lemma relationship is loaded and handle lemma filtering"""
@@ -125,8 +122,6 @@ class Stems(DataTable):
             joinedload(models.Stem.lemma),
             joinedload(models.Stem.word)
         )
-        
-        # Handle lemma filtering if provided (constraint-based filtering)
         if self.lemma:
             query = query.filter(models.Stem.lemma_pk == self.lemma.pk)
         return query
@@ -138,6 +133,40 @@ class Stems(DataTable):
             StemWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name)
         ]
 
+## parts of words table ##
+class PartFormCol(LinkCol):
+    def get_obj(self, item):
+        return item
+    def get_attrs(self, item):
+        return {'label': item.name}
+class PartWordCol(LinkCol):
+    def get_obj(self, item):
+        return item.word
+    def get_attrs(self, item):
+        return {'label': item.word.name}
+class Parts(DataTable):
+    __constraints__ = [ models.Lemma, models.Word ]
+    def __init__(self, req, model, **kw):
+        super().__init__(req, model, **kw)
+    def base_query(self, query):
+        query = query.join(models.Part.lemma)
+        query = query.join(models.Part.word)
+
+        query = query.options(
+            joinedload(models.Part.lemma),
+            joinedload(models.Part.word)
+        )
+        if self.lemma:
+            query = query.filter(models.Part.lemma_pk == self.lemma.pk)
+        if self.word:
+            query = query.filter(models.Part.word_pk == self.word.pk)
+        return query
+    def col_defs(self):
+        return [
+            PartFormCol(self, 'form', sTitle='Part', model_col=models.Part.name),
+            LemmaCol(self, 'lemma', model_col=models.Lemma.name),
+            PartWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name),
+        ]
 
 ## words table ##
 class WordFormCol(LinkCol):
@@ -280,7 +309,8 @@ def includeme(config):
     """register custom datatables"""
     config.register_datatable('values', Lemmas)
     config.register_datatable('stems', Stems) 
-    config.register_datatable('morphemes', Morphemes) 
+    config.register_datatable('morphemes', Morphemes)
+    config.register_datatable('parts', Parts)
     config.register_datatable('words', Words)
     config.register_datatable('languages', Languages)
     config.register_datatable('sources', Sources)

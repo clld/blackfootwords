@@ -5,3 +5,6 @@ class IStem(Interface):
 
 class IMorpheme(Interface):
     """marker"""
+
+class IPart(Interface):
+    """marker"""

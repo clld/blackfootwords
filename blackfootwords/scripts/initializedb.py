@@ -20,11 +20,11 @@ def main(args):
 
     dataset = common.Dataset(
         id=blackfootwords.__name__,
-        domain='doi.org/10.1007/s10579-022-09631-2',
-        name="Blackfoot Words: A lexical database of Blackfoot legacy sources",
-        publisher_name="Language Resources and Evaluation",
-        publisher_place="",
-        publisher_url="https://www.blackfootwords.com/",
+        domain='www.blackfootwords.com',
+        name="Blackfoot Words",
+        publisher_name="Department of Linguistics, Yale University",
+        publisher_place="New Haven",
+        publisher_url="https://www.blackfootwords.com",
         license = "http://creativecommons.org/licenses/by/4.0/",
         jsondata = {
             'license_icon': 'cc-by.png',
@@ -44,18 +44,18 @@ def main(args):
     # )
     for i, spec in enumerate([
         ('Natalie Weber', True),
-        ('Tyler Brown', True),
-        ('Joshua Celli', True),
-        ('McKenzie Denham', True),
-        ('Hailey Dykstra', True),
-        ('Nico Kidd', True),
-        ('Rodrigo Hernandez-Merlin', True),
-        ('Evan Hochstein', True),
-        ('Pinyu Hwang', True),
-        ('Diana Kulmizev', True),
-        ('Hannah Morrison', True),
-        ('Matty Norris', True),
-        ('Lena Venkatraman', True),
+        # ('Tyler Brown', True),
+        # ('Joshua Celli', True),
+        # ('McKenzie Denham', True),
+        # ('Hailey Dykstra', True),
+        # ('Nico Kidd', True),
+        # ('Rodrigo Hernandez-Merlin', True),
+        # ('Evan Hochstein', True),
+        # ('Pinyu Hwang', True),
+        # ('Diana Kulmizev', True),
+        # ('Hannah Morrison', True),
+        # ('Matty Norris', True),
+        # ('Lena Venkatraman', True),
     ]):
         name, primary = spec
         c = common.Contributor(id=slug(name), name=name)
@@ -191,6 +191,40 @@ def main(args):
             valueset=lemma.valueset,
             lemma=lemma,
             stem=stem,
+        )
+
+    # parts of words
+    for part in args.cldf.iter_rows('partsofwords.csv', 'Part_ID', 'LabPart', 'Lemma_ID', 'Word_ID',
+                                    'ContainedIn', 'Precedence', 'LabPartCategory', 'LabPartComments'):
+        lemma_id = part['Lemma_ID']
+        lemma = data['Lemma'].get(lemma_id)
+        word_id = part['Word_ID']
+        word = data['Word'].get(word_id)
+
+        if not lemma:
+            print(f"Warning: Lemma with id {lemma_id} not found for part {part['Part_ID']}")
+            continue
+        if not word:
+            print(f"Warning: Word with id {word_id} not found for part {part['Part_ID']}")
+            continue
+
+        # prefix each part id to distinguish from stem and morpheme ids
+        part_id = 'part-{}'.format(part['Part_ID'])
+        # LabPartCategory is multivalued in CLDF (separator ' '); pycldf returns a list.
+        lab_cat = part['LabPartCategory']
+        lab_part_category = '/'.join(lab_cat) if isinstance(lab_cat, list) else (lab_cat or None)
+        data.add(
+            models.Part,
+            part_id,
+            id=part_id,
+            name=part['LabPart'],
+            valueset=lemma.valueset,
+            lemma=lemma,
+            word=word,
+            # contained_in=part['ContainedIn'],
+            # precedence=part['Precedence'],
+            lab_part_category=lab_part_category,
+            lab_part_comments=part['LabPartComments'],
         )
 
     # for word in args.cldf.iter_rows('WordTable', 'id', 'form', 'source_id'):
