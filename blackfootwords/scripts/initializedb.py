@@ -20,11 +20,11 @@ def main(args):
 
     dataset = common.Dataset(
         id=blackfootwords.__name__,
-        domain='doi.org/10.1007/s10579-022-09631-2',
-        name="Blackfoot Words: A lexical database of Blackfoot legacy sources",
-        publisher_name="Language Resources and Evaluation",
-        publisher_place="",
-        publisher_url="https://www.blackfootwords.com/",
+        domain='www.blackfootwords.com',
+        name="Blackfoot Words",
+        publisher_name="Department of Linguistics, Yale University",
+        publisher_place="New Haven",
+        publisher_url="https://www.blackfootwords.com",
         license = "http://creativecommons.org/licenses/by/4.0/",
         jsondata = {
             'license_icon': 'cc-by.png',
@@ -44,18 +44,18 @@ def main(args):
     # )
     for i, spec in enumerate([
         ('Natalie Weber', True),
-        ('Tyler Brown', True),
-        ('Joshua Celli', True),
-        ('McKenzie Denham', True),
-        ('Hailey Dykstra', True),
-        ('Nico Kidd', True),
-        ('Rodrigo Hernandez-Merlin', True),
-        ('Evan Hochstein', True),
-        ('Pinyu Hwang', True),
-        ('Diana Kulmizev', True),
-        ('Hannah Morrison', True),
-        ('Matty Norris', True),
-        ('Lena Venkatraman', True),
+        # ('Tyler Brown', True),
+        # ('Joshua Celli', True),
+        # ('McKenzie Denham', True),
+        # ('Hailey Dykstra', True),
+        # ('Nico Kidd', True),
+        # ('Rodrigo Hernandez-Merlin', True),
+        # ('Evan Hochstein', True),
+        # ('Pinyu Hwang', True),
+        # ('Diana Kulmizev', True),
+        # ('Hannah Morrison', True),
+        # ('Matty Norris', True),
+        # ('Lena Venkatraman', True),
     ]):
         name, primary = spec
         c = common.Contributor(id=slug(name), name=name)

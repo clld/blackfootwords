@@ -3,7 +3,8 @@
 <%def name="sidebar()">
     <div class="well">
         <h3>Cite</h3>
-        ${h.newline2br(h.text_citation(request, ctx))|n}
+        Natalie Weber (ed). (2026). Blackfoot Words. New Haven: Department of Linguistics, Yale University. (Available online at ${h.external_link("https://www.blackfootwords.com", label="https://www.blackfootwords.com")}, Accessed on YYYY-MM-DD.)
+        ##${h.newline2br(h.text_citation(request, ctx))|n}
         ${h.cite_button(request, ctx)}
     </div>
 </%def>
