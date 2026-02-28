@@ -1,7 +1,7 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
 from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, DetailsRowLinkCol
-from clld.db.models.common import Value, Language, LanguageSource, Source
+from clld.db.models.common import Value, Language, LanguageSource, Source, ValueSet, Parameter
 from clld.web.datatables.value import Values, ValueNameCol
 from clld.db.util import get_distinct_values
 from blackfootwords import models
@@ -49,10 +49,16 @@ class ParameterCol(LinkCol):
 #             tag=HTML.button)
 
 class Lemmas(Values):
+    __constraints__ = [ Parameter, ValueSet ]
     def base_query(self, query):
-        query = super().base_query(query)
-        query = query.join(models.Lemma.valueset).join(models.Concept)
-        return query.filter(models.Lemma.polymorphic_type == 'lemma')
+        query = query.join(models.Lemma.parameter)
+
+        query = query.options(
+            joinedload(models.Lemma.parameter),
+        )
+        if self.parameter:
+            query = query.filter(models.Lemma.parameter_pk == self.parameter.pk)
+        return query
     def col_defs(self):
         return [
             LinkCol(self, 'lemma', model_col=models.Lemma.name, get_obj=lambda i: i),
@@ -187,10 +193,17 @@ class WordLanguageCol(LinkCol):
         return {'label': item.language.name}
 
 class Words(DataTable):
+    __constraints__ = [ Parameter ]
     def base_query(self, query):
-        query = query.join(models.Word.language)  
-        query = query.join(models.Word.parameter)  
-        query = query.options(joinedload(models.Word.language))
+        query = query.join(models.Word.parameter)
+        query = query.join(models.Word.language) 
+
+        query = query.options(
+            joinedload(models.Word.parameter),
+            joinedload(models.Word.language)
+        )
+        if self.parameter:
+            query = query.filter(models.Word.parameter_pk == self.parameter.pk)
         return query
 
     def col_defs(self):

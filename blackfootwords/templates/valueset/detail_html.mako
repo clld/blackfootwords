@@ -29,7 +29,7 @@ ${h.text2html(h.Markup(ctx.markup_description) if ctx.markup_description else ct
         </dl>
         % endif
     </div>
-</div>
+</div> 
 % endfor
 <%def name="sidebar()">
 <div class="well well-small">

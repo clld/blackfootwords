@@ -41,6 +41,8 @@ class Lemma(CustomModelMixin, common.Value):
     pk = Column(Integer, ForeignKey('value.pk'), primary_key=True)
     categories = Column(Unicode)
     comments = Column(Unicode)
+    parameter_pk = Column(Integer, ForeignKey('parameter.pk'))
+    parameter = relationship('Parameter', backref='lemmas', foreign_keys=[parameter_pk])
     __mapper_args__ = {'polymorphic_identity': 'lemma'}
 
 @implementer(IStem)

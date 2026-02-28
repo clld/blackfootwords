@@ -13,4 +13,7 @@ from blackfootwords import models
 % endif
 
 <dt>Lemmas with this translation:</dt>
-${request.get_datatable('values', models.Lemma, parameter=ctx).render()}
+${request.get_datatable('values', models.Lemma, parameter=ctx).render()} 
+
+<dt>Words with this translation:</dt>
+${request.get_datatable('words', models.Word, parameter=ctx).render()} 

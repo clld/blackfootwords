@@ -110,7 +110,8 @@ def main(args):
             categories='/'.join(form['LabLemmaCategory']),
             comments=form['LabLemmaComments'],
             valueset=vs,
-            polymorphic_type='lemma',
+            parameter=vs.parameter,
+            polymorphic_type='lemma', 
         )
 
     #words
