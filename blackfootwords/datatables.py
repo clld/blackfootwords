@@ -150,6 +150,11 @@ class PartWordCol(LinkCol):
         return item.word
     def get_attrs(self, item):
         return {'label': item.word.name}
+class PartWordTranslationCol(LinkCol):
+    def get_obj(self, item):
+        return item.word.parameter
+    def get_attrs(self, item):
+        return {'label': item.word.parameter.name}
 class Parts(DataTable):
     __constraints__ = [ models.Lemma, models.Word ]
     def __init__(self, req, model, **kw):
@@ -172,6 +177,7 @@ class Parts(DataTable):
             PartFormCol(self, 'form', sTitle='Part', model_col=models.Part.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
             PartWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name),
+            PartWordTranslationCol(self, 'translation', sTitle='Word Translation', model_col=models.Concept.name, get_object=lambda i: i.parameter)
         ]
 
 ## words table ##
@@ -180,19 +186,16 @@ class WordFormCol(LinkCol):
         return item
     def get_attrs(self, item):
         return {'label': item.name}
-    
 class WordTranslationCol(LinkCol):
     def get_obj(self, item):
         return item.parameter
     def get_attrs(self, item):
         return {'label': item.parameter.name}
-    
 class WordLanguageCol(LinkCol):
     def get_obj(self, item):
         return item.language
     def get_attrs(self, item):
         return {'label': item.language.name}
-
 class Words(DataTable):
     __constraints__ = [ Parameter ]
     def base_query(self, query):
