@@ -38,8 +38,6 @@ def main(global_config, **settings):
         ('dataset', functools.partial(menu_item, 'dataset', label='Home')),
         ('parameters', functools.partial(menu_item, 'parameters')),
         ('values', functools.partial(menu_item, 'values')),
-        ('stems', lambda ctx, req: (req.route_url('stems'), 'Stems')),
-        ('morphemes', lambda ctx, req: (req.route_url('morphemes'), 'Morphemes')),
         ('words', lambda ctx, req: (req.route_url('words'), 'Words')),
         ('parts', lambda ctx, req: (req.route_url('parts'), 'Parts')),
         ('languages', functools.partial(menu_item, 'languages')),
