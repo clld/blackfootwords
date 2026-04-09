@@ -177,6 +177,7 @@ class Parts(DataTable):
             PartFormCol(self, 'form', sTitle='Part', model_col=models.Part.name),
             LemmaCol(self, 'lemma', model_col=models.Lemma.name),
             PartWordCol(self, 'word', sTitle='Contained in Word', model_col=models.Word.name),
+            Col(self, 'category', sTitle='Category', model_col=models.Part.lab_part_category, choices=get_distinct_values(models.Part.lab_part_category)),
             PartWordTranslationCol(self, 'translation', sTitle='Word Translation', model_col=models.Concept.name, get_object=lambda i: i.parameter)
         ]
 
@@ -217,6 +218,7 @@ class Words(DataTable):
         return [
             WordFormCol(self, 'form', model_col=models.Word.name),
             WordTranslationCol(self, 'translation', model_col=models.Concept.name, get_object=lambda i: i.parameter),
+            Col(self, 'category', sTitle='Category', model_col=models.Word.category, choices=get_distinct_values(models.Word.category)),
             WordLanguageCol(self, 'dialect', model_col=models.Variety.name)  
         ]
 
